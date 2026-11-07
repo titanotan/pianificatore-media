@@ -27,6 +27,7 @@
   font-size: var(--text-md);
   text-decoration: none;
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 /* ---------- Computer ---------- */
@@ -47,7 +48,7 @@
 }
 
 .sidebarBrand {
-  padding: 0 var(--space-3);
+  padding: 0 var(--space-2);
 }
 
 .sidebarFooter {

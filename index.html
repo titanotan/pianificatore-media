@@ -6,15 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Pianifica la tua carriera universitaria: scopri quali voti ti servono per raggiungere la media obiettivo."
+      content="Pianificatore Media: scopri quali voti ti servono nei prossimi esami universitari per raggiungere la media che vuoi."
     />
-    <title>Piano Carriera</title>
+    <title>Pianificatore Media – la tua media universitaria sotto controllo</title>
     <script>
       // Applica il tema prima del primo disegno della pagina, per evitare il "lampo" chiaro→scuro.
       ;(function () {
         var theme = null
         try {
-          theme = localStorage.getItem('piano-carriera:theme')
+          theme = localStorage.getItem('pianificatore-media:theme')
         } catch (e) {}
         if (theme !== 'light' && theme !== 'dark') {
           theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'

@@ -9,8 +9,8 @@ import { createEmptyData, type AppData } from '../domain/types'
 import { SCHEMA_VERSION, migrate } from './migrations'
 import { sanitizeAppData } from './sanitize'
 
-export const DATA_STORAGE_KEY = 'piano-carriera:data'
-export const BACKUP_STORAGE_KEY = 'piano-carriera:data-backup'
+export const DATA_STORAGE_KEY = 'pianificatore-media:data'
+export const BACKUP_STORAGE_KEY = 'pianificatore-media:data-backup'
 
 export type KeyValueStorage = Pick<Storage, 'getItem' | 'setItem'>
 
@@ -68,7 +68,9 @@ export function loadData(storage: KeyValueStorage): LoadResult {
     return { data: clean, status: 'loaded' }
   } catch (error) {
     backup(storage, raw)
-    const detail = error instanceof Error ? ` ${error.message}` : ''
+    // Il dettaglio è mostrato solo per i nostri errori (in italiano), non per quelli tecnici del browser
+    const detail =
+      error instanceof Error && !(error instanceof SyntaxError) ? ` ${error.message}` : ''
     return {
       data: createEmptyData(),
       status: 'error',
@@ -104,7 +106,7 @@ export function createMemoryStorage(initial: Record<string, string> = {}): KeyVa
 /** localStorage del browser se disponibile, altrimenti uno storage in memoria (dati non persistenti). */
 export function getBrowserStorage(): { storage: KeyValueStorage; persistent: boolean } {
   try {
-    const probe = '__piano-carriera-probe__'
+    const probe = '__pianificatore-media-probe__'
     window.localStorage.setItem(probe, probe)
     window.localStorage.removeItem(probe)
     return { storage: window.localStorage, persistent: true }

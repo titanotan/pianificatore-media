@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { AppShell } from './app/AppShell'
+import { StorageNotices } from './app/StorageNotices'
 import type { RouteId } from './app/routes'
 import { useHashRoute } from './app/useHashRoute'
 import { useTheme } from './app/useTheme'
@@ -21,6 +22,7 @@ export default function App() {
 
   return (
     <AppShell route={route} theme={theme} onToggleTheme={toggle}>
+      <StorageNotices />
       {PAGES[route]()}
     </AppShell>
   )

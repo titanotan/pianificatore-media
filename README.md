@@ -1,8 +1,7 @@
-# Piano Carriera
+# Pianificatore Media
 
-App web per pianificare la carriera universitaria. Non è un semplice libretto: il cuore dell'app è
-capire **quali voti servono nei prossimi esami** per raggiungere la media o il voto di laurea
-obiettivo.
+App web per tenere sotto controllo la media universitaria. Non è un semplice libretto: il cuore
+dell'app è capire **quali voti servono nei prossimi esami** per raggiungere la media obiettivo.
 
 I requisiti completi sono in [`prompt.md`](prompt.md).
 
@@ -59,7 +58,7 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 
 - [x] M0 — Fondamenta: progetto, temi chiaro/scuro, navigazione, deploy
 - [x] M1 — Logica di calcolo e salvataggio
-- [ ] M2 — Libretto e impostazioni
+- [x] M2 — Libretto e impostazioni
 - [ ] M3 — Esami futuri e obiettivo
 - [ ] M4 — Pianificazione e simulazione
 - [ ] M5 — Primo avvio, smartphone e pubblicazione

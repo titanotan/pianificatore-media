@@ -16,7 +16,7 @@ function Brand() {
   return (
     <a href="#/piano" className={styles.brand}>
       <img src="./favicon.svg" alt="" width={28} height={28} />
-      <span>Piano Carriera</span>
+      <span>Pianificatore Media</span>
     </a>
   )
 }

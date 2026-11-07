@@ -3,7 +3,7 @@
 export type Theme = 'light' | 'dark'
 
 /** Chiave in localStorage; la stessa è letta dallo script in index.html. */
-export const THEME_STORAGE_KEY = 'piano-carriera:theme'
+export const THEME_STORAGE_KEY = 'pianificatore-media:theme'
 
 export function isTheme(value: unknown): value is Theme {
   return value === 'light' || value === 'dark'
