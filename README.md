@@ -1,5 +1,7 @@
 # Pianificatore Media
 
+**Prova l'app: https://titanotan.github.io/pianificatore-media/**
+
 App web per tenere sotto controllo la media universitaria. Non è un semplice libretto: il cuore
 dell'app è capire **quali voti servono nei prossimi esami** per raggiungere la media obiettivo.
 
@@ -95,4 +97,4 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 - [x] M5 — Gruppo di esami (funzione aggiuntiva)
 - [x] M6 — Pagina del gruppo con più obiettivi
 - [x] M7 — Voti casuali in base alla difficoltà
-- [x] M8 — Primo avvio, rifiniture e accessibilità (pubblicazione: vedi sotto)
+- [x] M8 — Primo avvio, rifiniture, accessibilità e pubblicazione su GitHub Pages
