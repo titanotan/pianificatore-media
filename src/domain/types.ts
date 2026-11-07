@@ -65,15 +65,20 @@ export interface Prediction {
 }
 
 /**
- * Insieme di voti previsti. Nella prima versione ne esiste uno solo;
- * in futuro: più scenari da confrontare (prudente, realistico, ambizioso).
+ * Uno scenario = un obiettivo con la sua simulazione indipendente.
+ * L'utente può averne diversi (es. media 25, 26, 27) e confrontarli.
  */
 export interface Scenario {
   id: string
+  /** Nome facoltativo (in futuro: "prudente", "realistico", "ambizioso"); vuoto = si mostra la media */
   name: string
+  goal: Goal
   /** Voti previsti indicizzati per id dell'esame futuro */
   predictions: Record<string, Prediction>
 }
+
+/** Numero massimo di obiettivi contemporanei. */
+export const MAX_SCENARIOS = 10
 
 export interface Settings {
   /** Quanto vale la lode nel calcolo della media (30–33) */
@@ -90,20 +95,18 @@ export interface AppData {
   passedExams: PassedExam[]
   futureExams: FutureExam[]
   settings: Settings
-  goal: Goal | null
+  /** Obiettivi, ciascuno con la sua simulazione */
   scenarios: Scenario[]
-  activeScenarioId: string
+  /** Obiettivo selezionato nella Pianificazione; `null` se non ce ne sono */
+  activeScenarioId: string | null
 }
-
-export const DEFAULT_SCENARIO_ID = 'default'
 
 export function createEmptyData(): AppData {
   return {
     passedExams: [],
     futureExams: [],
     settings: { lodeValue: DEFAULT_LODE_VALUE },
-    goal: null,
-    scenarios: [{ id: DEFAULT_SCENARIO_ID, name: 'Simulazione', predictions: {} }],
-    activeScenarioId: DEFAULT_SCENARIO_ID,
+    scenarios: [],
+    activeScenarioId: null,
   }
 }

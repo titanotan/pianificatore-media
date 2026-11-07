@@ -96,3 +96,16 @@ export function goalProgress(average: number | null, goal: number | null): numbe
   const ratio = (average - MIN_GRADE) / (goal - MIN_GRADE)
   return Math.min(1, Math.max(0, ratio))
 }
+
+/**
+ * Posizione di una media su una scala da `min` a `max` (0–1), per la barra della simulazione.
+ * `null` se il valore manca.
+ */
+export function scalePosition(
+  value: number | null,
+  min: number = MIN_GRADE,
+  max: number = MAX_GRADE,
+): number | null {
+  if (value === null || max <= min) return null
+  return Math.min(1, Math.max(0, (value - min) / (max - min)))
+}

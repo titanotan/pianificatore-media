@@ -40,7 +40,8 @@ src/
 ## Regole di calcolo
 
 - **Media ponderata** = Σ(voto × CFU) / Σ CFU. Con la lode un 30 vale quanto impostato (30–33).
-- **Obiettivo**: una media da 18 a 30.
+- **Obiettivi**: una o più medie da 18 a 30 (massimo 10), ognuna con la sua simulazione
+  indipendente; si confrontano in una tabella e si possono duplicare.
 - **Media necessaria** negli esami futuri non bloccati =
   (obiettivo × CFU totali − Σ voti sostenuti − Σ voti bloccati) / CFU non bloccati.
 - **Stato dell'obiettivo**: già raggiunto (basta 18 ovunque) · raggiungibile · al limite (serve
@@ -60,5 +61,5 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 - [x] M1 — Logica di calcolo e salvataggio
 - [x] M2 — Libretto e impostazioni
 - [x] M3 — Esami futuri e obiettivo
-- [ ] M4 — Pianificazione e simulazione
+- [x] M4 — Pianificazione con più obiettivi e simulazione
 - [ ] M5 — Primo avvio, smartphone e pubblicazione

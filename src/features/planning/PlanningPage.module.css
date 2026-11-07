@@ -17,13 +17,30 @@
   }
 }
 
-.status {
+.goals {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
   gap: var(--space-3);
   flex-wrap: wrap;
-  margin-bottom: var(--space-5);
+}
+
+.sectionTitle {
+  font-size: var(--text-lg);
+  font-weight: 650;
+}
+
+.sectionText {
+  margin-top: 2px;
   font-size: var(--text-sm);
+  color: var(--text-muted);
 }
 
 .goalCta {

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react'
-import { computePlan } from '../domain/simulation'
+import { planAllScenarios, planForScenario, reachableRange } from '../domain/scenarios'
 import { getBrowserStorage, loadData, saveData } from '../storage/storage'
 import { AppStateContext, type AppStateValue } from './context'
 import { appReducer, getActiveScenario } from './reducer'
@@ -23,28 +23,26 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setSaveOk(saveData(storage, data))
   }, [data, storage, initial.status])
 
-  const plan = useMemo(
-    () =>
-      computePlan({
-        passedExams: data.passedExams,
-        futureExams: data.futureExams,
-        predictions: getActiveScenario(data).predictions,
-        settings: data.settings,
-        goal: data.goal,
-      }),
-    [data],
-  )
+  const derived = useMemo(() => {
+    const activeScenario = getActiveScenario(data)
+    return {
+      activeScenario,
+      plan: planForScenario(data, activeScenario),
+      scenarioPlans: planAllScenarios(data),
+      range: reachableRange(data),
+    }
+  }, [data])
 
   const value = useMemo<AppStateValue>(
     () => ({
       data,
       dispatch,
-      plan,
+      ...derived,
       load: { status: initial.status, message: initial.message },
       persistent,
       saveOk,
     }),
-    [data, plan, initial.status, initial.message, persistent, saveOk],
+    [data, derived, initial.status, initial.message, persistent, saveOk],
   )
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>

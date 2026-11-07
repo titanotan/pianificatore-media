@@ -21,7 +21,8 @@ export function SettingsPage() {
   const [confirmReset, setConfirmReset] = useState(false)
   const { lodeValue } = data.settings
   const lodeCount = data.passedExams.filter((e) => e.lode).length
-  const hasData = data.passedExams.length > 0 || data.futureExams.length > 0 || data.goal !== null
+  const hasData =
+    data.passedExams.length > 0 || data.futureExams.length > 0 || data.scenarios.length > 0
 
   // Anteprima: media che avresti con ciascun valore della lode
   const previews = LODE_OPTIONS.map(({ value }) => ({
@@ -103,7 +104,7 @@ export function SettingsPage() {
       <ConfirmDialog
         open={confirmReset}
         title="Cancellare tutti i dati?"
-        message="Verranno eliminati esami sostenuti, esami da sostenere, obiettivo, simulazione e impostazioni. L’operazione non si può annullare."
+        message="Verranno eliminati esami sostenuti, esami da sostenere, obiettivi con le loro simulazioni e impostazioni. L’operazione non si può annullare."
         confirmLabel="Cancella tutto"
         onConfirm={() => {
           dispatch({ type: 'data/reset' })

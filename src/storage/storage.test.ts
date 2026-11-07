@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { createEmptyData, type AppData } from '../domain/types'
-import { SCHEMA_VERSION, UnsupportedVersionError, migrate } from './migrations'
+import { SCHEMA_VERSION, UnsupportedVersionError, migrate, migrateV1toV2 } from './migrations'
 import { sanitizeAppData } from './sanitize'
 import {
   BACKUP_STORAGE_KEY,
@@ -18,14 +18,16 @@ const sampleData = (): AppData => ({
   ],
   futureExams: [{ id: 'f1', name: 'Fisica', cfu: 12, difficulty: 'hard' }],
   settings: { lodeValue: 31 },
-  goal: { kind: 'average', value: 27.5 },
   scenarios: [
     {
-      id: 'default',
-      name: 'Simulazione',
+      id: 's1',
+      name: '',
+      goal: { kind: 'average', value: 27.5 },
       predictions: { f1: { grade: 26, lode: false, locked: true } },
     },
+    { id: 's2', name: 'Ambizioso', goal: { kind: 'average', value: 28 }, predictions: {} },
   ],
+  activeScenarioId: 's2',
 })
 
 const stored = (data: unknown, version = SCHEMA_VERSION) => ({
@@ -113,7 +115,7 @@ describe('sanitizeAppData', () => {
     expect(data.futureExams[0].difficulty).toBe('medium')
   })
 
-  it('scarta id duplicati, previsioni orfane e impostazioni non valide', () => {
+  it('scarta id duplicati, previsioni orfane, obiettivi e impostazioni non validi', () => {
     const { data, dropped } = sanitizeAppData({
       passedExams: [
         { id: 'a', name: 'A', cfu: 6, grade: 28, lode: false },
@@ -121,11 +123,12 @@ describe('sanitizeAppData', () => {
       ],
       futureExams: [{ id: 'f', name: 'F', cfu: 6, difficulty: 'easy' }],
       settings: { lodeValue: 40 },
-      goal: { kind: 'average', value: 50 },
       scenarios: [
+        { id: 'bad', name: '', goal: { kind: 'average', value: 50 }, predictions: {} },
         {
           id: 's',
           name: 'S',
+          goal: { kind: 'average', value: 27 },
           predictions: {
             f: { grade: 29, lode: false, locked: true },
             orfano: { grade: 29, lode: false, locked: true },
@@ -136,16 +139,81 @@ describe('sanitizeAppData', () => {
     })
     expect(data.passedExams).toHaveLength(1)
     expect(data.settings.lodeValue).toBe(30)
-    expect(data.goal).toBeNull()
+    expect(data.scenarios.map((s) => s.id)).toEqual(['s'])
     expect(data.scenarios[0].predictions).toEqual({ f: { grade: 29, lode: false, locked: true } })
     expect(data.activeScenarioId).toBe('s')
-    expect(dropped).toBe(3) // duplicato + lode non valida + obiettivo non valido
+    expect(dropped).toBe(3) // esame duplicato + lode non valida + obiettivo non valido
   })
 
-  it('senza scenari ne crea uno predefinito', () => {
+  it('senza obiettivi: nessuno scenario e nessuna selezione', () => {
     const { data } = sanitizeAppData({ passedExams: [], futureExams: [] })
-    expect(data.scenarios).toHaveLength(1)
-    expect(data.activeScenarioId).toBe(data.scenarios[0].id)
+    expect(data.scenarios).toEqual([])
+    expect(data.activeScenarioId).toBeNull()
+  })
+
+  it('tiene al massimo 10 obiettivi', () => {
+    const scenarios = Array.from({ length: 12 }, (_, i) => ({
+      id: `s${i}`,
+      name: '',
+      goal: { kind: 'average', value: 18 + i },
+      predictions: {},
+    }))
+    const { data, dropped } = sanitizeAppData({ scenarios })
+    expect(data.scenarios).toHaveLength(10)
+    expect(dropped).toBe(2)
+  })
+})
+
+describe('migrazione v1 → v2 (da un obiettivo a più obiettivi)', () => {
+  const v1 = {
+    passedExams: [{ id: 'p1', name: 'Analisi', cfu: 9, grade: 26, lode: false }],
+    futureExams: [{ id: 'f1', name: 'Fisica', cfu: 12, difficulty: 'hard' }],
+    settings: { lodeValue: 30 },
+    goal: { kind: 'average', value: 27 },
+    scenarios: [
+      {
+        id: 'default',
+        name: 'Simulazione',
+        predictions: { f1: { grade: 28, lode: false, locked: true } },
+      },
+    ],
+    activeScenarioId: 'default',
+  }
+
+  it('l’obiettivo esistente diventa il primo scenario, con i suoi voti previsti', () => {
+    expect(migrateV1toV2(v1)).toEqual({
+      passedExams: v1.passedExams,
+      futureExams: v1.futureExams,
+      settings: v1.settings,
+      scenarios: [
+        {
+          id: 'default',
+          name: '',
+          goal: { kind: 'average', value: 27 },
+          predictions: { f1: { grade: 28, lode: false, locked: true } },
+        },
+      ],
+      activeScenarioId: 'default',
+    })
+  })
+
+  it('senza obiettivo: nessuno scenario', () => {
+    const migrated = migrateV1toV2({ ...v1, goal: null }) as Record<string, unknown>
+    expect(migrated.scenarios).toEqual([])
+    expect(migrated.activeScenarioId).toBeNull()
+    expect('goal' in migrated).toBe(false)
+  })
+
+  it('dati salvati con la v1 si caricano senza perdere nulla', () => {
+    const storage = createMemoryStorage(stored(v1, 1))
+    const result = loadData(storage)
+    expect(result.status).toBe('loaded')
+    expect(result.data.passedExams).toHaveLength(1)
+    expect(result.data.scenarios[0].goal.value).toBe(27)
+    expect(result.data.scenarios[0].predictions.f1.locked).toBe(true)
+    // Al salvataggio successivo i dati sono nel formato nuovo
+    saveData(storage, result.data)
+    expect(JSON.parse(storage.dump()[DATA_STORAGE_KEY]).version).toBe(2)
   })
 })
 

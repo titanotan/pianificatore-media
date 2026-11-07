@@ -9,7 +9,6 @@ import { formatCfu } from '../../domain/format'
 import { newId } from '../../domain/id'
 import { DIFFICULTIES, type Difficulty, type FutureExam } from '../../domain/types'
 import { useEditorState } from '../../hooks/useEditorState'
-import { getActiveScenario } from '../../state/reducer'
 import { useAppState } from '../../state/context'
 import styles from '../../components/ListPage.module.css'
 import { FutureExamForm } from './FutureExamForm'
@@ -25,7 +24,6 @@ export function FutureExamsPage() {
   const { data, dispatch, plan } = useAppState()
   const editor = useEditorState<FutureExam>()
   const exams = data.futureExams
-  const predictions = getActiveScenario(data).predictions
 
   const difficultySummary = DIFFICULTIES.map((d) => {
     const count = exams.filter((e) => e.difficulty === d).length
@@ -115,7 +113,8 @@ export function FutureExamsPage() {
           editor.toDelete && (
             <>
               Vuoi eliminare <strong>{editor.toDelete.name}</strong> dagli esami da sostenere?
-              {predictions[editor.toDelete.id] && ' Verrà eliminato anche il voto previsto.'}{' '}
+              {data.scenarios.some((s) => editor.toDelete && s.predictions[editor.toDelete.id]) &&
+                ' Verranno eliminati anche i suoi voti previsti nelle simulazioni.'}{' '}
               L’operazione non si può annullare.
             </>
           )

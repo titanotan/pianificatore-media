@@ -91,3 +91,42 @@ export function Checkbox({ label, checked, onChange, disabled, hint, error }: Ch
     </div>
   )
 }
+
+interface SelectFieldProps {
+  label: string
+  value: string
+  onChange: (value: string) => void
+  options: readonly { value: string; label: string }[]
+  hint?: ReactNode
+}
+
+export function SelectField({ label, value, onChange, options, hint }: SelectFieldProps) {
+  const id = useId()
+  return (
+    <div className={styles.field}>
+      <label htmlFor={id} className={styles.label}>
+        {label}
+      </label>
+      <div className={styles.control}>
+        <select
+          id={id}
+          className={styles.select}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          aria-describedby={hint ? `${id}-hint` : undefined}
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {hint && (
+        <p id={`${id}-hint`} className={styles.hint}>
+          {hint}
+        </p>
+      )}
+    </div>
+  )
+}

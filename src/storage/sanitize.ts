@@ -14,6 +14,7 @@ import {
   DEFAULT_LODE_VALUE,
   MAX_GRADE,
   MAX_NAME_LENGTH,
+  MAX_SCENARIOS,
   createEmptyData,
   type AppData,
   type FutureExam,
@@ -124,11 +125,10 @@ export function sanitizeAppData(raw: unknown): SanitizeResult {
     : DEFAULT_LODE_VALUE
   if (settingsRaw.lodeValue !== undefined && lodeValue !== settingsRaw.lodeValue) dropped += 1
 
-  const goal = sanitizeGoal(raw.goal)
-  if (raw.goal != null && goal === null) dropped += 1
-
   const scenarioList = sanitizeList<Scenario>(raw.scenarios, (entry) => {
     if (!isObject(entry) || !isValidId(entry.id)) return null
+    const goal = sanitizeGoal(entry.goal)
+    if (!goal) return null
     const predictions: Record<string, Prediction> = {}
     if (isObject(entry.predictions)) {
       for (const [examId, value] of Object.entries(entry.predictions)) {
@@ -140,23 +140,24 @@ export function sanitizeAppData(raw: unknown): SanitizeResult {
     }
     return {
       id: entry.id,
-      name: cleanName(entry.name) ?? 'Simulazione',
+      name: typeof entry.name === 'string' ? (cleanName(entry.name) ?? '') : '',
+      goal,
       predictions,
     }
   })
   dropped += scenarioList.dropped
 
-  const scenarios = scenarioList.items.length > 0 ? scenarioList.items : empty.scenarios
+  const scenarios = scenarioList.items.slice(0, MAX_SCENARIOS)
+  dropped += scenarioList.items.length - scenarios.length
   const activeScenarioId = scenarios.some((s) => s.id === raw.activeScenarioId)
     ? (raw.activeScenarioId as string)
-    : scenarios[0].id
+    : (scenarios[0]?.id ?? null)
 
   return {
     data: {
       passedExams: passed.items,
       futureExams: future.items,
       settings: { lodeValue },
-      goal,
       scenarios,
       activeScenarioId,
     },

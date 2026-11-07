@@ -1,0 +1,250 @@
+/* ---------- Pannello di dettaglio dell'obiettivo ---------- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.panelTitle {
+  font-size: var(--text-lg);
+  font-weight: 650;
+}
+
+.panelSubtitle {
+  margin-top: 2px;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-size: var(--text-md);
+}
+
+.status p {
+  font-weight: 500;
+}
+
+.help {
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
+
+.help strong {
+  color: var(--text-muted);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.summaryItem {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+.summaryLabel {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.summaryValue {
+  font-size: var(--text-xl);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryHint {
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
+
+.empty {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+
+/* ---------- Tabella della simulazione ---------- */
+.tableWrapper {
+  box-shadow: none;
+}
+
+.table tbody tr[data-locked] {
+  background: color-mix(in srgb, var(--accent-soft) 70%, transparent);
+}
+
+.cfu {
+  width: 1%;
+}
+
+.difficulty,
+.lode,
+.lock {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.grade {
+  width: 1%;
+}
+
+.gradeField {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.gradeInput {
+  width: 72px;
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  text-align: center;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.gradeInput::placeholder {
+  color: var(--text-subtle);
+  font-weight: 400;
+}
+
+.gradeInput:focus-visible {
+  border-color: var(--accent);
+}
+
+.gradeInput[aria-invalid] {
+  border-color: var(--danger);
+}
+
+.gradeError {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: 2px;
+  text-align: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--danger);
+}
+
+.lodeLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 36px;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.lodeLabel input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: inherit;
+}
+
+.lodeLabel[data-disabled] {
+  color: var(--text-subtle);
+  cursor: not-allowed;
+}
+
+.lockButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text-muted);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.lockButton:hover:not(:disabled) {
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.lockButton[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.lockButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Smartphone: ogni esame è una scheda con i controlli in basso */
+@media (max-width: 767px) {
+  .summary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  table.table tbody tr {
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'name name name difficulty'
+      'cfu cfu cfu cfu'
+      'grade lode . lock';
+    row-gap: var(--space-2);
+  }
+
+  .examName {
+    grid-area: name;
+  }
+
+  table.table .cfu {
+    grid-area: cfu;
+    width: auto;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: var(--text-xs);
+  }
+
+  .difficulty {
+    grid-area: difficulty;
+    width: auto;
+  }
+
+  .grade {
+    grid-area: grade;
+    width: auto;
+  }
+
+  .lode {
+    grid-area: lode;
+    width: auto;
+    padding-left: var(--space-3) !important;
+  }
+
+  .lock {
+    grid-area: lock;
+    width: auto;
+    justify-self: end;
+  }
+}
