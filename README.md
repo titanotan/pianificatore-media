@@ -36,6 +36,8 @@ la logica di calcolo.
 
 ## Comandi
 
+Serve Node.js 22.12 o superiore (consigliato il 26, indicato in `.nvmrc`).
+
 ```bash
 npm install        # installa le dipendenze (una volta)
 npm run dev        # avvia l'app in locale → http://localhost:5173
@@ -98,3 +100,7 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 - [x] M6 — Pagina del gruppo con più obiettivi
 - [x] M7 — Voti casuali in base alla difficoltà
 - [x] M8 — Primo avvio, rifiniture, accessibilità e pubblicazione su GitHub Pages
+
+## Licenza
+
+[MIT](LICENSE) © 2026 Alberto Sina
