@@ -1,9 +1,13 @@
 import { Card } from '../../components/Card'
 import { PageHeader } from '../../components/PageHeader'
 import { Stat } from '../../components/Stat'
+import { formatAverage, formatCfu, formatRequired } from '../../domain/format'
+import { useAppState } from '../../state/context'
 import styles from './PlanningPage.module.css'
 
 export function PlanningPage() {
+  const { plan } = useAppState()
+
   return (
     <>
       <PageHeader
@@ -12,10 +16,27 @@ export function PlanningPage() {
       />
 
       <div className={styles.stats}>
-        <Stat label="Media attuale" value="—" hint="sugli esami sostenuti" />
-        <Stat label="Obiettivo" value="—" hint="media da raggiungere" />
-        <Stat label="Media necessaria" value="—" hint="negli esami rimanenti" emphasis />
-        <Stat label="CFU rimanenti" value="—" hint="da sostenere" />
+        <Stat
+          label="Media attuale"
+          value={formatAverage(plan.passed.average)}
+          hint={`su ${formatCfu(plan.passed.cfu)} sostenuti`}
+        />
+        <Stat
+          label="Obiettivo"
+          value={formatAverage(plan.goalAverage)}
+          hint="media da raggiungere"
+        />
+        <Stat
+          label="Media necessaria"
+          value={formatRequired(plan.evaluation?.required ?? null)}
+          hint="negli esami rimanenti"
+          emphasis
+        />
+        <Stat
+          label="CFU rimanenti"
+          value={plan.future.cfu}
+          hint={`${plan.future.count} esami da sostenere`}
+        />
       </div>
 
       <Card variant="placeholder">

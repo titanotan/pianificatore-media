@@ -1,0 +1,172 @@
+import { describe, expect, it } from 'vitest'
+import { createEmptyData, type AppData } from '../domain/types'
+import { SCHEMA_VERSION, UnsupportedVersionError, migrate } from './migrations'
+import { sanitizeAppData } from './sanitize'
+import {
+  BACKUP_STORAGE_KEY,
+  DATA_STORAGE_KEY,
+  createMemoryStorage,
+  loadData,
+  saveData,
+} from './storage'
+
+const sampleData = (): AppData => ({
+  ...createEmptyData(),
+  passedExams: [
+    { id: 'p1', name: 'Analisi I', cfu: 9, grade: 30, lode: true, date: '2025-02-10' },
+    { id: 'p2', name: 'Programmazione', cfu: 12, grade: 27, lode: false },
+  ],
+  futureExams: [{ id: 'f1', name: 'Fisica', cfu: 12, difficulty: 'hard' }],
+  settings: { lodeValue: 31 },
+  goal: { kind: 'average', value: 27.5 },
+  scenarios: [
+    {
+      id: 'default',
+      name: 'Simulazione',
+      predictions: { f1: { grade: 26, lode: false, locked: true } },
+    },
+  ],
+})
+
+const stored = (data: unknown, version = SCHEMA_VERSION) => ({
+  [DATA_STORAGE_KEY]: JSON.stringify({ version, data }),
+})
+
+describe('salvataggio e caricamento', () => {
+  it('primo avvio: dati vuoti', () => {
+    const result = loadData(createMemoryStorage())
+    expect(result.status).toBe('empty')
+    expect(result.data).toEqual(createEmptyData())
+  })
+
+  it('i dati salvati si rileggono identici', () => {
+    const storage = createMemoryStorage()
+    expect(saveData(storage, sampleData())).toBe(true)
+    const result = loadData(storage)
+    expect(result.status).toBe('loaded')
+    expect(result.data).toEqual(sampleData())
+  })
+
+  it('salva insieme ai dati il numero di versione', () => {
+    const storage = createMemoryStorage()
+    saveData(storage, sampleData())
+    expect(JSON.parse(storage.dump()[DATA_STORAGE_KEY]).version).toBe(SCHEMA_VERSION)
+  })
+
+  it('JSON rovinato: riparte da zero ma conserva una copia di sicurezza', () => {
+    const storage = createMemoryStorage({ [DATA_STORAGE_KEY]: '{non è json' })
+    const result = loadData(storage)
+    expect(result.status).toBe('error')
+    expect(result.data).toEqual(createEmptyData())
+    expect(result.message).toMatch(/copia di sicurezza/)
+    expect(storage.dump()[BACKUP_STORAGE_KEY]).toBe('{non è json')
+  })
+
+  it('dati di una versione più recente dell’app: non li tocca, ne fa il backup', () => {
+    const storage = createMemoryStorage(stored(sampleData(), SCHEMA_VERSION + 1))
+    const result = loadData(storage)
+    expect(result.status).toBe('error')
+    expect(result.message).toMatch(/più recente/)
+    expect(storage.dump()[BACKUP_STORAGE_KEY]).toBe(storage.dump()[DATA_STORAGE_KEY])
+  })
+
+  it('elementi non validi: li scarta, tiene il resto e lo segnala', () => {
+    const data = {
+      ...sampleData(),
+      passedExams: [
+        ...sampleData().passedExams,
+        { id: 'bad', name: 'Voto impossibile', cfu: 6, grade: 35, lode: false },
+      ],
+    }
+    const result = loadData(createMemoryStorage(stored(data)))
+    expect(result.status).toBe('recovered')
+    expect(result.data.passedExams.map((e) => e.id)).toEqual(['p1', 'p2'])
+    expect(result.message).toMatch(/ignorati \(1\)/)
+  })
+
+  it('storage che non permette di scrivere: saveData restituisce false', () => {
+    const storage = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error('QuotaExceededError')
+      },
+    }
+    expect(saveData(storage, sampleData())).toBe(false)
+  })
+})
+
+describe('sanitizeAppData', () => {
+  it('dati validi: nessuno scarto', () => {
+    expect(sanitizeAppData(sampleData())).toEqual({ data: sampleData(), dropped: 0 })
+  })
+
+  it('valore non oggetto: dati vuoti', () => {
+    expect(sanitizeAppData('ciao').data).toEqual(createEmptyData())
+  })
+
+  it('corregge la lode senza 30 e la difficoltà mancante', () => {
+    const { data } = sanitizeAppData({
+      passedExams: [{ id: 'a', name: 'A', cfu: 6, grade: 28, lode: true }],
+      futureExams: [{ id: 'b', name: 'B', cfu: 6 }],
+    })
+    expect(data.passedExams[0].lode).toBe(false)
+    expect(data.futureExams[0].difficulty).toBe('medium')
+  })
+
+  it('scarta id duplicati, previsioni orfane e impostazioni non valide', () => {
+    const { data, dropped } = sanitizeAppData({
+      passedExams: [
+        { id: 'a', name: 'A', cfu: 6, grade: 28, lode: false },
+        { id: 'a', name: 'A bis', cfu: 6, grade: 28, lode: false },
+      ],
+      futureExams: [{ id: 'f', name: 'F', cfu: 6, difficulty: 'easy' }],
+      settings: { lodeValue: 40 },
+      goal: { kind: 'average', value: 50 },
+      scenarios: [
+        {
+          id: 's',
+          name: 'S',
+          predictions: {
+            f: { grade: 29, lode: false, locked: true },
+            orfano: { grade: 29, lode: false, locked: true },
+          },
+        },
+      ],
+      activeScenarioId: 'inesistente',
+    })
+    expect(data.passedExams).toHaveLength(1)
+    expect(data.settings.lodeValue).toBe(30)
+    expect(data.goal).toBeNull()
+    expect(data.scenarios[0].predictions).toEqual({ f: { grade: 29, lode: false, locked: true } })
+    expect(data.activeScenarioId).toBe('s')
+    expect(dropped).toBe(3) // duplicato + lode non valida + obiettivo non valido
+  })
+
+  it('senza scenari ne crea uno predefinito', () => {
+    const { data } = sanitizeAppData({ passedExams: [], futureExams: [] })
+    expect(data.scenarios).toHaveLength(1)
+    expect(data.activeScenarioId).toBe(data.scenarios[0].id)
+  })
+})
+
+describe('migrate', () => {
+  it('dati già alla versione corrente: invariati', () => {
+    const data = sampleData()
+    expect(migrate(data, SCHEMA_VERSION)).toBe(data)
+  })
+
+  it('applica le migrazioni in sequenza', () => {
+    const migrations = {
+      1: (d: unknown) => ({ ...(d as object), sessions: [] }),
+      2: (d: unknown) => ({ ...(d as object), migratedTo3: true }),
+    }
+    expect(migrate({ a: 1 }, 1, 3, migrations)).toEqual({ a: 1, sessions: [], migratedTo3: true })
+  })
+
+  it('errore se manca una migrazione o la versione non è valida', () => {
+    expect(() => migrate({}, 1, 2, {})).toThrow(UnsupportedVersionError)
+    expect(() => migrate({}, 0)).toThrow(UnsupportedVersionError)
+    expect(() => migrate({}, Number.NaN)).toThrow(UnsupportedVersionError)
+    expect(() => migrate({}, SCHEMA_VERSION + 1)).toThrow(/più recente/)
+  })
+})

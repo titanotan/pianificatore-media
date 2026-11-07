@@ -29,14 +29,25 @@ npm run format     # formatta il codice con Prettier
 
 ```
 src/
+  domain/      logica di calcolo pura (medie, obiettivo, simulazione, validazione), con test
+  storage/     salvataggio in localStorage con versione dello schema e migrazioni, con test
+  state/       stato dell'app (reducer + provider React), con test
   app/         struttura della pagina, navigazione (#/piano, #/libretto, ...), tema
   components/  componenti grafici riutilizzabili
   features/    le sezioni dell'app (pianificazione, libretto, esami futuri, impostazioni)
   styles/      token di design (colori, spaziature) e stili di base
 ```
 
-La logica di calcolo (medie, obiettivo, simulazione) vivrà in `src/domain/` come funzioni pure,
-indipendenti da React e coperte da test.
+## Regole di calcolo
+
+- **Media ponderata** = Σ(voto × CFU) / Σ CFU. Con la lode un 30 vale quanto impostato (30–33).
+- **Obiettivo**: una media da 18 a 30.
+- **Media necessaria** negli esami futuri non bloccati =
+  (obiettivo × CFU totali − Σ voti sostenuti − Σ voti bloccati) / CFU non bloccati.
+- **Stato dell'obiettivo**: già raggiunto (basta 18 ovunque) · raggiungibile · al limite (serve
+  29 o più) · solo con lodi (serve più di 30) · impossibile.
+- **Media finale prevista**: esami sostenuti + esami futuri con un voto previsto.
+- La media necessaria è mostrata arrotondata per eccesso, per non sottostimare ciò che serve.
 
 ## Pubblicazione su GitHub Pages
 
@@ -47,7 +58,7 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 ## Avanzamento
 
 - [x] M0 — Fondamenta: progetto, temi chiaro/scuro, navigazione, deploy
-- [ ] M1 — Logica di calcolo e salvataggio
+- [x] M1 — Logica di calcolo e salvataggio
 - [ ] M2 — Libretto e impostazioni
 - [ ] M3 — Esami futuri e obiettivo
 - [ ] M4 — Pianificazione e simulazione
