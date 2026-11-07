@@ -1,13 +1,24 @@
 import { describe, expect, it } from 'vitest'
-import { groupExams, planForGroup, validateGroupName } from './group'
-import { planForScenario } from './scenarios'
+import { groupExams, validateGroupName } from './group'
+import { buildScopeView, planAllScenarios, planForScenario, reachableRange } from './scenarios'
 import { createEmptyData, type AppData, type Scenario } from './types'
+
+const scenario = (
+  id: string,
+  value: number,
+  predictions: Scenario['predictions'] = {},
+): Scenario => ({
+  id,
+  name: '',
+  goal: { kind: 'average', value },
+  predictions,
+})
 
 /**
  * Libretto: A (30 CFU, 23) e B (30 CFU, 25, nel gruppo) → media generale 24, del gruppo 25.
  * Futuri: F1 (12 CFU, nel gruppo) e F2 (24 CFU, fuori dal gruppo).
  */
-const data = (goal: number | null = 27): AppData => ({
+const data = (groupScenarios: Scenario[] = []): AppData => ({
   ...createEmptyData(),
   passedExams: [
     { id: 'a', name: 'A', cfu: 30, grade: 23, lode: false },
@@ -20,15 +31,9 @@ const data = (goal: number | null = 27): AppData => ({
   group: {
     enabled: true,
     name: 'Caratterizzanti',
-    goal: goal === null ? null : { kind: 'average', value: goal },
+    scenarios: groupScenarios,
+    activeScenarioId: groupScenarios[0]?.id ?? null,
   },
-})
-
-const scenario = (predictions: Scenario['predictions'] = {}): Scenario => ({
-  id: 's',
-  name: '',
-  goal: { kind: 'average', value: 26 },
-  predictions,
 })
 
 describe('groupExams', () => {
@@ -39,51 +44,60 @@ describe('groupExams', () => {
   })
 })
 
-describe('planForGroup', () => {
+describe('pianificazione del gruppo (ambito group)', () => {
   it('media del gruppo calcolata solo sui suoi esami', () => {
-    const plan = planForGroup(data(), null)
+    const plan = planForScenario(data(), null, 'group')
     expect(plan.passed.average).toBeCloseTo(25)
     expect(plan.passed.cfu).toBe(30)
     expect(plan.future.cfu).toBe(12)
   })
 
   it('la media generale non cambia', () => {
-    expect(planForScenario(data(), null).passed.average).toBeCloseTo(24)
+    expect(planForScenario(data(), null, 'main').passed.average).toBeCloseTo(24)
   })
 
-  it('media necessaria negli esami del gruppo per l’obiettivo del gruppo', () => {
-    // (27 × 42 − 750) / 12 = 32 → non raggiungibile; con obiettivo 26: (1092 − 750)/12 = 28,5
-    expect(planForGroup(data(27), null).evaluation!.status).toBe('impossible')
-    const plan = planForGroup(data(26), null)
-    expect(plan.evaluation!.required).toBeCloseTo(28.5)
-    expect(plan.evaluation!.status).toBe('reachable')
+  it('più obiettivi del gruppo, ciascuno con la sua media necessaria', () => {
+    // 26: (26×42 − 750)/12 = 28,5 · 27: (27×42 − 750)/12 = 32
+    const plans = planAllScenarios(data([scenario('g27', 27), scenario('g26', 26)]), 'group')
+    expect(plans.map((p) => p.scenario.id)).toEqual(['g26', 'g27'])
+    expect(plans[0].plan.evaluation!.required).toBeCloseTo(28.5)
+    expect(plans[0].plan.evaluation!.status).toBe('reachable')
+    expect(plans[1].plan.evaluation!.status).toBe('impossible')
   })
 
-  it('usa i voti previsti e bloccati della simulazione selezionata', () => {
-    const plan = planForGroup(
-      data(26),
-      scenario({
+  it('la simulazione del gruppo considera solo gli esami del gruppo', () => {
+    // F2 non è nel gruppo: il suo voto previsto viene ignorato. (750 + 360)/42 = 26,43
+    const plan = planForScenario(
+      data(),
+      scenario('g', 26, {
         f1: { grade: 30, lode: false, locked: true },
         f2: { grade: 18, lode: false, locked: true },
       }),
+      'group',
     )
-    // Solo F1 conta per il gruppo: (750 + 360) / 42 = 26,43
     expect(plan.projection.average).toBeCloseTo(26.4286, 3)
     expect(plan.evaluation!.status).toBe('reached')
-    expect(plan.evaluation!.required).toBeNull()
   })
 
-  it('senza obiettivo del gruppo: medie sì, valutazione no', () => {
-    const plan = planForGroup(data(null), null)
-    expect(plan.passed.average).toBeCloseTo(25)
-    expect(plan.evaluation).toBeNull()
+  it('medie minima e massima del gruppo', () => {
+    const range = reachableRange(data(), 'group')!
+    expect(range.min).toBeCloseTo((750 + 18 * 12) / 42)
+    expect(range.max).toBeCloseTo((750 + 30 * 12) / 42)
+  })
+
+  it('vista del gruppo: obiettivo selezionato e soli esami futuri del gruppo', () => {
+    const view = buildScopeView(data([scenario('g26', 26), scenario('g27', 27)]), 'group')
+    expect(view.scope).toBe('group')
+    expect(view.activeScenario!.id).toBe('g26')
+    expect(view.futureExams.map((e) => e.id)).toEqual(['f1'])
+    expect(view.scenarioPlans).toHaveLength(2)
   })
 
   it('gruppo senza esami: nessuna media', () => {
     const empty = { ...data(), passedExams: [], futureExams: [] }
-    const plan = planForGroup(empty, null)
+    const plan = planForScenario(empty, null, 'group')
     expect(plan.passed.average).toBeNull()
-    expect(plan.evaluation).toBeNull()
+    expect(reachableRange(empty, 'group')).toBeNull()
   })
 })
 

@@ -3,7 +3,7 @@
  * L'hash non viene mai inviato al server, quindi su GitHub Pages non ci sono errori 404.
  */
 
-export const ROUTE_IDS = ['piano', 'libretto', 'futuri', 'impostazioni'] as const
+export const ROUTE_IDS = ['piano', 'gruppo', 'libretto', 'futuri', 'impostazioni'] as const
 
 export type RouteId = (typeof ROUTE_IDS)[number]
 
@@ -19,6 +19,8 @@ export interface RouteInfo {
 
 export const ROUTES: readonly RouteInfo[] = [
   { id: 'piano', label: 'Pianificazione', shortLabel: 'Piano' },
+  // Visibile solo se il gruppo di esami è attivo; l'etichetta diventa il nome del gruppo
+  { id: 'gruppo', label: 'Gruppo di esami', shortLabel: 'Gruppo' },
   { id: 'libretto', label: 'Esami sostenuti', shortLabel: 'Libretto' },
   { id: 'futuri', label: 'Esami da sostenere', shortLabel: 'Futuri' },
   { id: 'impostazioni', label: 'Impostazioni', shortLabel: 'Impost.' },

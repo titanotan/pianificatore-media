@@ -58,8 +58,8 @@ const scenario = (id: string, value: number, predictions = {}) => ({
 const withGoals = () =>
   run(
     [
-      { type: 'scenario/add', scenario: scenario('s25', 25) },
-      { type: 'scenario/add', scenario: scenario('s27', 27) },
+      { type: 'scenario/add', scope: 'main', scenario: scenario('s25', 25) },
+      { type: 'scenario/add', scope: 'main', scenario: scenario('s27', 27) },
     ],
     withFuture(),
   )
@@ -76,15 +76,16 @@ describe('obiettivi (scenari)', () => {
   })
 
   it('seleziona un obiettivo esistente, ignora id sconosciuti', () => {
-    let state = appReducer(withGoals(), { type: 'scenario/select', id: 's25' })
+    let state = appReducer(withGoals(), { type: 'scenario/select', scope: 'main', id: 's25' })
     expect(state.activeScenarioId).toBe('s25')
-    state = appReducer(state, { type: 'scenario/select', id: 'nope' })
+    state = appReducer(state, { type: 'scenario/select', scope: 'main', id: 'nope' })
     expect(state.activeScenarioId).toBe('s25')
   })
 
   it('modifica la media di un obiettivo', () => {
     const state = appReducer(withGoals(), {
       type: 'scenario/updateGoal',
+      scope: 'main',
       id: 's25',
       goal: goal(26),
     })
@@ -92,23 +93,24 @@ describe('obiettivi (scenari)', () => {
   })
 
   it('eliminando l’obiettivo selezionato ne seleziona un altro', () => {
-    let state = appReducer(withGoals(), { type: 'scenario/remove', id: 's27' })
+    let state = appReducer(withGoals(), { type: 'scenario/remove', scope: 'main', id: 's27' })
     expect(state.scenarios.map((s) => s.id)).toEqual(['s25'])
     expect(state.activeScenarioId).toBe('s25')
-    state = appReducer(state, { type: 'scenario/remove', id: 's25' })
+    state = appReducer(state, { type: 'scenario/remove', scope: 'main', id: 's25' })
     expect(state.scenarios).toEqual([])
     expect(state.activeScenarioId).toBeNull()
     expect(getActiveScenario(state)).toBeNull()
   })
 
   it('eliminando un obiettivo non selezionato la selezione resta', () => {
-    const state = appReducer(withGoals(), { type: 'scenario/remove', id: 's25' })
+    const state = appReducer(withGoals(), { type: 'scenario/remove', scope: 'main', id: 's25' })
     expect(state.activeScenarioId).toBe('s27')
   })
 
   it('copiando i voti previsti tiene solo quelli di esami esistenti', () => {
     const state = appReducer(withFuture(), {
       type: 'scenario/add',
+      scope: 'main',
       scenario: scenario('s', 26, {
         f1: { grade: 28, lode: false, locked: true },
         sparito: { grade: 30, lode: false, locked: false },
@@ -120,7 +122,11 @@ describe('obiettivi (scenari)', () => {
   it('non supera il numero massimo di obiettivi', () => {
     let state = withFuture()
     for (let i = 0; i < 12; i++) {
-      state = appReducer(state, { type: 'scenario/add', scenario: scenario(`s${i}`, 18 + i) })
+      state = appReducer(state, {
+        type: 'scenario/add',
+        scope: 'main',
+        scenario: scenario(`s${i}`, 18 + i),
+      })
     }
     expect(state.scenarios).toHaveLength(10)
   })
@@ -130,6 +136,7 @@ describe('esami futuri e voti previsti', () => {
   it('assegna, blocca e sblocca un voto previsto', () => {
     let state = appReducer(withGoals(), {
       type: 'prediction/set',
+      scope: 'main',
       scenarioId: 's27',
       examId: 'f1',
       grade: 27,
@@ -139,6 +146,7 @@ describe('esami futuri e voti previsti', () => {
 
     state = appReducer(state, {
       type: 'prediction/setLocked',
+      scope: 'main',
       scenarioId: 's27',
       examId: 'f1',
       locked: true,
@@ -148,6 +156,7 @@ describe('esami futuri e voti previsti', () => {
     // Cambiare il voto mantiene il blocco
     state = appReducer(state, {
       type: 'prediction/set',
+      scope: 'main',
       scenarioId: 's27',
       examId: 'f1',
       grade: 29,
@@ -157,6 +166,7 @@ describe('esami futuri e voti previsti', () => {
 
     state = appReducer(state, {
       type: 'prediction/setLocked',
+      scope: 'main',
       scenarioId: 's27',
       examId: 'f1',
       locked: false,
@@ -167,8 +177,22 @@ describe('esami futuri e voti previsti', () => {
   it('ogni obiettivo ha la sua simulazione indipendente', () => {
     const state = run(
       [
-        { type: 'prediction/set', scenarioId: 's25', examId: 'f1', grade: 24, lode: false },
-        { type: 'prediction/set', scenarioId: 's27', examId: 'f1', grade: 30, lode: true },
+        {
+          type: 'prediction/set',
+          scope: 'main',
+          scenarioId: 's25',
+          examId: 'f1',
+          grade: 24,
+          lode: false,
+        },
+        {
+          type: 'prediction/set',
+          scope: 'main',
+          scenarioId: 's27',
+          examId: 'f1',
+          grade: 30,
+          lode: true,
+        },
       ],
       withGoals(),
     )
@@ -179,6 +203,7 @@ describe('esami futuri e voti previsti', () => {
   it('non si può bloccare un esame senza voto previsto', () => {
     const state = appReducer(withGoals(), {
       type: 'prediction/setLocked',
+      scope: 'main',
       scenarioId: 's27',
       examId: 'f1',
       locked: true,
@@ -190,6 +215,7 @@ describe('esami futuri e voti previsti', () => {
     const start = withGoals()
     const state = appReducer(start, {
       type: 'prediction/set',
+      scope: 'main',
       scenarioId: 's27',
       examId: 'nope',
       grade: 30,
@@ -201,6 +227,7 @@ describe('esami futuri e voti previsti', () => {
   it('toglie la lode prevista se il voto non è 30', () => {
     const state = appReducer(withGoals(), {
       type: 'prediction/set',
+      scope: 'main',
       scenarioId: 's27',
       examId: 'f1',
       grade: 29,
@@ -212,23 +239,63 @@ describe('esami futuri e voti previsti', () => {
   it('cancella un voto previsto o tutta la simulazione', () => {
     let state = run(
       [
-        { type: 'prediction/set', scenarioId: 's27', examId: 'f1', grade: 27, lode: false },
-        { type: 'prediction/set', scenarioId: 's27', examId: 'f2', grade: 28, lode: false },
+        {
+          type: 'prediction/set',
+          scope: 'main',
+          scenarioId: 's27',
+          examId: 'f1',
+          grade: 27,
+          lode: false,
+        },
+        {
+          type: 'prediction/set',
+          scope: 'main',
+          scenarioId: 's27',
+          examId: 'f2',
+          grade: 28,
+          lode: false,
+        },
       ],
       withGoals(),
     )
-    state = appReducer(state, { type: 'prediction/clear', scenarioId: 's27', examId: 'f1' })
+    state = appReducer(state, {
+      type: 'prediction/clear',
+      scope: 'main',
+      scenarioId: 's27',
+      examId: 'f1',
+    })
     expect(Object.keys(predictionsOf(state, 's27'))).toEqual(['f2'])
-    state = appReducer(state, { type: 'prediction/clearAll', scenarioId: 's27' })
+    state = appReducer(state, { type: 'prediction/clearAll', scope: 'main', scenarioId: 's27' })
     expect(predictionsOf(state, 's27')).toEqual({})
   })
 
   it('eliminando un esame futuro elimina i suoi voti previsti in tutti gli obiettivi', () => {
     let state = run(
       [
-        { type: 'prediction/set', scenarioId: 's25', examId: 'f1', grade: 27, lode: false },
-        { type: 'prediction/set', scenarioId: 's27', examId: 'f1', grade: 29, lode: false },
-        { type: 'prediction/set', scenarioId: 's27', examId: 'f2', grade: 30, lode: true },
+        {
+          type: 'prediction/set',
+          scope: 'main',
+          scenarioId: 's25',
+          examId: 'f1',
+          grade: 27,
+          lode: false,
+        },
+        {
+          type: 'prediction/set',
+          scope: 'main',
+          scenarioId: 's27',
+          examId: 'f1',
+          grade: 29,
+          lode: false,
+        },
+        {
+          type: 'prediction/set',
+          scope: 'main',
+          scenarioId: 's27',
+          examId: 'f2',
+          grade: 30,
+          lode: true,
+        },
       ],
       withGoals(),
     )
@@ -247,6 +314,84 @@ describe('esami futuri e voti previsti', () => {
   })
 })
 
+describe('obiettivi del gruppo di esami (ambito separato)', () => {
+  const withGroupGoal = () =>
+    run(
+      [
+        { type: 'scenario/add', scope: 'main', scenario: scenario('m26', 26) },
+        { type: 'scenario/add', scope: 'group', scenario: scenario('g27', 27) },
+        { type: 'scenario/add', scope: 'group', scenario: scenario('g28', 28) },
+      ],
+      withFuture(),
+    )
+
+  it('gli obiettivi del gruppo non toccano quelli generali', () => {
+    const state = withGroupGoal()
+    expect(state.scenarios.map((s) => s.id)).toEqual(['m26'])
+    expect(state.activeScenarioId).toBe('m26')
+    expect(state.group.scenarios.map((s) => s.id)).toEqual(['g27', 'g28'])
+    expect(state.group.activeScenarioId).toBe('g28')
+  })
+
+  it('selezione, modifica ed eliminazione restano nel loro ambito', () => {
+    let state = run(
+      [
+        { type: 'scenario/select', scope: 'group', id: 'g27' },
+        { type: 'scenario/updateGoal', scope: 'group', id: 'g28', goal: goal(29) },
+        // Un id del gruppo usato nell'ambito generale non fa nulla
+        { type: 'scenario/remove', scope: 'main', id: 'g27' },
+      ],
+      withGroupGoal(),
+    )
+    expect(state.group.activeScenarioId).toBe('g27')
+    expect(state.group.scenarios.find((s) => s.id === 'g28')!.goal.value).toBe(29)
+    expect(state.group.scenarios).toHaveLength(2)
+    state = appReducer(state, { type: 'scenario/remove', scope: 'group', id: 'g27' })
+    expect(state.group.scenarios.map((s) => s.id)).toEqual(['g28'])
+    expect(state.group.activeScenarioId).toBe('g28')
+    expect(state.scenarios).toHaveLength(1)
+  })
+
+  it('voti previsti del gruppo separati da quelli generali', () => {
+    const state = run(
+      [
+        {
+          type: 'prediction/set',
+          scope: 'group',
+          scenarioId: 'g27',
+          examId: 'f1',
+          grade: 30,
+          lode: false,
+        },
+        {
+          type: 'prediction/set',
+          scope: 'main',
+          scenarioId: 'm26',
+          examId: 'f1',
+          grade: 24,
+          lode: false,
+        },
+      ],
+      withGroupGoal(),
+    )
+    expect(state.group.scenarios[0].predictions.f1.grade).toBe(30)
+    expect(state.scenarios[0].predictions.f1.grade).toBe(24)
+  })
+
+  it('eliminando un esame futuro spariscono i suoi voti anche nel gruppo', () => {
+    let state = appReducer(withGroupGoal(), {
+      type: 'prediction/set',
+      scope: 'group',
+      scenarioId: 'g27',
+      examId: 'f1',
+      grade: 30,
+      lode: false,
+    })
+    state = appReducer(state, { type: 'future/remove', id: 'f1' })
+    expect(state.group.scenarios[0].predictions).toEqual({})
+  })
+})
+
 describe('impostazioni e reset', () => {
   it('aggiorna il valore della lode', () => {
     const state = appReducer(createEmptyData(), {
@@ -256,22 +401,24 @@ describe('impostazioni e reset', () => {
     expect(state.settings.lodeValue).toBe(32)
   })
 
-  it('attiva il gruppo di esami, ne cambia nome e obiettivo', () => {
+  it('attiva il gruppo di esami, ne cambia il nome; spegnerlo conserva i dati', () => {
     let state = appReducer(createEmptyData(), { type: 'group/update', group: { enabled: true } })
-    expect(state.group).toEqual({ enabled: true, name: 'Gruppo di esami', goal: null })
-    state = appReducer(state, {
-      type: 'group/update',
-      group: { name: 'Caratterizzanti', goal: { kind: 'average', value: 27 } },
-    })
     expect(state.group).toEqual({
       enabled: true,
-      name: 'Caratterizzanti',
-      goal: { kind: 'average', value: 27 },
+      name: 'Gruppo di esami',
+      scenarios: [],
+      activeScenarioId: null,
     })
-    // Spegnerlo non cancella nome e obiettivo
+    state = appReducer(state, { type: 'group/update', group: { name: 'Caratterizzanti' } })
+    state = appReducer(state, {
+      type: 'scenario/add',
+      scope: 'group',
+      scenario: { id: 'g', name: '', goal: { kind: 'average', value: 27 }, predictions: {} },
+    })
+    // Spegnerlo non cancella nome e obiettivi
     state = appReducer(state, { type: 'group/update', group: { enabled: false } })
     expect(state.group.name).toBe('Caratterizzanti')
-    expect(state.group.goal).not.toBeNull()
+    expect(state.group.scenarios).toHaveLength(1)
   })
 
   it('reset: torna ai dati vuoti', () => {
@@ -284,13 +431,14 @@ describe('impostazioni e reset', () => {
     const snapshot = JSON.stringify(start)
     appReducer(start, {
       type: 'prediction/set',
+      scope: 'main',
       scenarioId: 's27',
       examId: 'f1',
       grade: 27,
       lode: false,
     })
     appReducer(start, { type: 'future/remove', id: 'f1' })
-    appReducer(start, { type: 'scenario/remove', id: 's27' })
+    appReducer(start, { type: 'scenario/remove', scope: 'main', id: 's27' })
     expect(JSON.stringify(start)).toBe(snapshot)
   })
 })

@@ -33,7 +33,7 @@ src/
   state/       stato dell'app (reducer + provider React), con test
   app/         struttura della pagina, navigazione (#/piano, #/libretto, ...), tema
   components/  componenti grafici riutilizzabili
-  features/    le sezioni dell'app (pianificazione, libretto, esami futuri, impostazioni)
+  features/    le sezioni dell'app (pianificazione, gruppo, libretto, esami futuri, impostazioni)
   styles/      token di design (colori, spaziature) e stili di base
 ```
 
@@ -46,8 +46,9 @@ src/
   (obiettivo × CFU totali − Σ voti sostenuti − Σ voti bloccati) / CFU non bloccati.
 - **Stato dell'obiettivo**: già raggiunto (basta 18 ovunque) · raggiungibile · al limite (serve
   29 o più) · solo con lodi (serve più di 30) · impossibile.
-- **Gruppo di esami** (funzione aggiuntiva, da attivare in Impostazioni): media, obiettivo e media
-  necessaria calcolati solo sugli esami del gruppo, che restano anche nella media generale.
+- **Gruppo di esami** (funzione aggiuntiva, da attivare in Impostazioni): una pagina propria nel
+  menu, con più obiettivi e simulazioni calcolati solo sugli esami del gruppo, che restano anche
+  nella media generale.
 - **Media finale prevista**: esami sostenuti + esami futuri con un voto previsto.
 - La media necessaria è mostrata arrotondata per eccesso, per non sottostimare ciò che serve.
 
@@ -65,4 +66,6 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 - [x] M3 — Esami futuri e obiettivo
 - [x] M4 — Pianificazione con più obiettivi e simulazione
 - [x] M5 — Gruppo di esami (funzione aggiuntiva)
-- [ ] M6 — Primo avvio, smartphone e pubblicazione
+- [x] M6 — Pagina del gruppo con più obiettivi
+- [ ] M7 — Voti casuali in base alla difficoltà
+- [ ] M8 — Primo avvio, smartphone e pubblicazione

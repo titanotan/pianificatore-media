@@ -12,6 +12,7 @@ import {
   sortScenarios,
   suggestGoals,
   validateScenarioGoal,
+  type ScopeView,
 } from '../../domain/scenarios'
 import { MAX_GRADE, MIN_GRADE, type Scenario } from '../../domain/types'
 import { useAppState } from '../../state/context'
@@ -22,23 +23,30 @@ export type GoalDialogMode =
   { mode: 'add'; copyFromId?: string } | { mode: 'edit'; scenario: Scenario } | null
 
 interface GoalDialogProps {
+  /** Ambito dell'obiettivo: media generale o gruppo di esami */
+  view: ScopeView
   state: GoalDialogMode
   onClose: () => void
 }
 
-export function GoalDialog({ state, onClose }: GoalDialogProps) {
+export function GoalDialog({ view, state, onClose }: GoalDialogProps) {
   const isEdit = state?.mode === 'edit'
   return (
     <Modal
       open={state !== null}
       onClose={onClose}
       title={isEdit ? 'Modifica obiettivo' : 'Nuovo obiettivo'}
-      description="La media ponderata che vuoi avere alla fine del percorso."
+      description={
+        view.scope === 'group'
+          ? 'La media che vuoi avere negli esami del gruppo.'
+          : 'La media ponderata che vuoi avere alla fine del percorso.'
+      }
       size="sm"
     >
       {state && (
         <GoalForm
           key={state.mode === 'edit' ? state.scenario.id : `add-${state.copyFromId ?? ''}`}
+          view={view}
           state={state}
           onClose={onClose}
         />
@@ -49,8 +57,15 @@ export function GoalDialog({ state, onClose }: GoalDialogProps) {
 
 const EMPTY_COPY = ''
 
-function GoalForm({ state, onClose }: { state: NonNullable<GoalDialogMode>; onClose: () => void }) {
-  const { data, dispatch, plan } = useAppState()
+interface GoalFormProps {
+  view: ScopeView
+  state: NonNullable<GoalDialogMode>
+  onClose: () => void
+}
+
+function GoalForm({ view, state, onClose }: GoalFormProps) {
+  const { data, dispatch } = useAppState()
+  const { scope, plan, scenarios } = view
   const editing = state.mode === 'edit' ? state.scenario : undefined
   const [value, setValue] = useState(editing ? formatNumber(editing.goal.value) : '')
   const [copyFrom, setCopyFrom] = useState(
@@ -58,13 +73,13 @@ function GoalForm({ state, onClose }: { state: NonNullable<GoalDialogMode>; onCl
   )
   const [showError, setShowError] = useState(false)
 
-  const result = validateScenarioGoal(value, data.scenarios, editing?.id)
-  const source = data.scenarios.find((s) => s.id === copyFrom)
+  const result = validateScenarioGoal(value, scenarios, editing?.id)
+  const source = scenarios.find((s) => s.id === copyFrom)
   const suggestions = editing
     ? []
     : suggestGoals(
         plan.passed.average,
-        data.scenarios.map((s) => s.goal.value),
+        scenarios.map((s) => s.goal.value),
       )
 
   // Anteprima: cosa servirebbe con questo obiettivo (e i voti previsti che verrebbero usati)
@@ -78,16 +93,17 @@ function GoalForm({ state, onClose }: { state: NonNullable<GoalDialogMode>; onCl
           predictions: editing?.predictions ?? source?.predictions ?? {},
         }
   const preview = previewScenario
-    ? describeGoal(planForScenario(data, previewScenario), data.settings.lodeValue)
+    ? describeGoal(planForScenario(data, previewScenario, scope), data.settings.lodeValue)
     : null
 
   const save = (goalValue: number) => {
     const goal = { kind: 'average' as const, value: goalValue }
     if (editing) {
-      dispatch({ type: 'scenario/updateGoal', id: editing.id, goal })
+      dispatch({ type: 'scenario/updateGoal', scope, id: editing.id, goal })
     } else {
       dispatch({
         type: 'scenario/add',
+        scope,
         scenario: {
           id: newId(),
           name: '',
@@ -110,7 +126,7 @@ function GoalForm({ state, onClose }: { state: NonNullable<GoalDialogMode>; onCl
 
   const copyOptions = [
     { value: EMPTY_COPY, label: 'Nessuno: simulazione vuota' },
-    ...sortScenarios(data.scenarios).map((s) => {
+    ...sortScenarios(scenarios).map((s) => {
       const count = Object.keys(s.predictions).length
       return {
         value: s.id,
@@ -138,7 +154,7 @@ function GoalForm({ state, onClose }: { state: NonNullable<GoalDialogMode>; onCl
         <div className={styles.suggestions}>
           <p className={styles.suggestionsLabel}>
             {plan.passed.average !== null
-              ? `Suggeriti (la tua media è ${formatAverage(plan.passed.average)}):`
+              ? `Suggeriti (${scope === 'group' ? 'media del gruppo' : 'la tua media'}: ${formatAverage(plan.passed.average)}):`
               : 'Suggeriti:'}
           </p>
           <div className={styles.chips}>
@@ -157,7 +173,7 @@ function GoalForm({ state, onClose }: { state: NonNullable<GoalDialogMode>; onCl
         </div>
       )}
 
-      {!editing && data.scenarios.length > 0 && (
+      {!editing && scenarios.length > 0 && (
         <SelectField
           label="Voti previsti"
           value={copyFrom}

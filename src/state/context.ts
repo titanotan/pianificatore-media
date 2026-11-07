@@ -1,24 +1,19 @@
 import { createContext, useContext, type Dispatch } from 'react'
-import type { AppData } from '../domain/types'
-import type { ReachableRange, ScenarioPlan } from '../domain/scenarios'
+import type { ScopeView } from '../domain/scenarios'
 import type { Plan } from '../domain/simulation'
-import type { Scenario } from '../domain/types'
+import type { AppData } from '../domain/types'
 import type { LoadResult } from '../storage/storage'
 import type { AppAction } from './reducer'
 
 export interface AppStateValue {
   data: AppData
   dispatch: Dispatch<AppAction>
-  /** Calcoli dell'obiettivo selezionato (o solo medie, se non ci sono obiettivi) */
+  /** Calcoli della media generale con l'obiettivo selezionato (scorciatoia per `main.plan`) */
   plan: Plan
-  /** Obiettivo selezionato, `null` se non ce ne sono */
-  activeScenario: Scenario | null
-  /** Tutti gli obiettivi con i loro calcoli, ordinati per media */
-  scenarioPlans: ScenarioPlan[]
-  /** Medie finali raggiungibili (indipendenti dagli obiettivi) */
-  range: ReachableRange | null
-  /** Calcoli del gruppo di esami (con i voti dell'obiettivo selezionato); `null` se spento */
-  groupPlan: Plan | null
+  /** Pianificazione della media generale */
+  main: ScopeView
+  /** Pianificazione del gruppo di esami; `null` se la funzione è spenta */
+  group: ScopeView | null
   /** Esito della lettura dei dati all'avvio */
   load: Pick<LoadResult, 'status' | 'message'>
   /** false se il browser non permette di salvare (es. navigazione privata) */

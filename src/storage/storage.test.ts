@@ -6,6 +6,7 @@ import {
   migrate,
   migrateV1toV2,
   migrateV2toV3,
+  migrateV3toV4,
 } from './migrations'
 import { sanitizeAppData } from './sanitize'
 import {
@@ -220,8 +221,13 @@ describe('migrazione v1 → v2 (da un obiettivo a più obiettivi)', () => {
     // Al salvataggio successivo i dati sono nel formato nuovo
     saveData(storage, result.data)
     expect(JSON.parse(storage.dump()[DATA_STORAGE_KEY]).version).toBe(SCHEMA_VERSION)
-    // ...e hanno il gruppo di esami, spento
-    expect(result.data.group).toEqual({ enabled: false, name: 'Gruppo di esami', goal: null })
+    // ...e hanno il gruppo di esami, spento e senza obiettivi
+    expect(result.data.group).toEqual({
+      enabled: false,
+      name: 'Gruppo di esami',
+      scenarios: [],
+      activeScenarioId: null,
+    })
   })
 })
 
@@ -235,12 +241,61 @@ describe('migrazione v2 → v3 (gruppo di esami)', () => {
   })
 })
 
+describe('migrazione v3 → v4 (più obiettivi del gruppo)', () => {
+  it('l’obiettivo del gruppo diventa il suo primo scenario', () => {
+    const v3 = {
+      scenarios: [],
+      group: { enabled: true, name: 'Caratterizzanti', goal: { kind: 'average', value: 27 } },
+    }
+    expect(migrateV3toV4(v3)).toEqual({
+      scenarios: [],
+      group: {
+        enabled: true,
+        name: 'Caratterizzanti',
+        scenarios: [
+          {
+            id: 'gruppo-obiettivo-1',
+            name: '',
+            goal: { kind: 'average', value: 27 },
+            predictions: {},
+          },
+        ],
+        activeScenarioId: 'gruppo-obiettivo-1',
+      },
+    })
+  })
+
+  it('senza obiettivo del gruppo: nessuno scenario', () => {
+    const migrated = migrateV3toV4({
+      group: { enabled: false, name: 'Gruppo di esami', goal: null },
+    }) as { group: Record<string, unknown> }
+    expect(migrated.group).toEqual({
+      enabled: false,
+      name: 'Gruppo di esami',
+      scenarios: [],
+      activeScenarioId: null,
+    })
+  })
+})
+
 describe('gruppo di esami nei dati salvati', () => {
-  it('conserva appartenenza al gruppo, nome e obiettivo', () => {
+  it('conserva appartenenza al gruppo, nome e obiettivi', () => {
     const data = {
       ...sampleData(),
       passedExams: [{ id: 'p', name: 'P', cfu: 6, grade: 28, lode: false, inGroup: true }],
-      group: { enabled: true, name: 'Caratterizzanti', goal: { kind: 'average', value: 27 } },
+      group: {
+        enabled: true,
+        name: 'Caratterizzanti',
+        scenarios: [
+          {
+            id: 'g',
+            name: '',
+            goal: { kind: 'average', value: 27 },
+            predictions: { f1: { grade: 30, lode: false, locked: true } },
+          },
+        ],
+        activeScenarioId: 'g',
+      },
     }
     const { data: clean, dropped } = sanitizeAppData(data)
     expect(dropped).toBe(0)
@@ -251,10 +306,19 @@ describe('gruppo di esami nei dati salvati', () => {
   it('valori non validi: gruppo spento con nome predefinito', () => {
     const { data } = sanitizeAppData({
       futureExams: [{ id: 'f', name: 'F', cfu: 6, difficulty: 'easy', inGroup: 'sì' }],
-      group: { enabled: 'yes', name: '', goal: { kind: 'average', value: 99 } },
+      group: {
+        enabled: 'yes',
+        name: '',
+        scenarios: [{ id: 'g', name: '', goal: { kind: 'average', value: 99 }, predictions: {} }],
+      },
     })
     expect(data.futureExams[0].inGroup).toBeUndefined()
-    expect(data.group).toEqual({ enabled: false, name: 'Gruppo di esami', goal: null })
+    expect(data.group).toEqual({
+      enabled: false,
+      name: 'Gruppo di esami',
+      scenarios: [],
+      activeScenarioId: null,
+    })
   })
 })
 

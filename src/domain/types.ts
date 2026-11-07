@@ -115,14 +115,22 @@ export interface ExamGroup {
   /** Funzione attiva: se spenta, nell'interfaccia non compare nulla (i dati restano salvati) */
   enabled: boolean
   name: string
-  goal: Goal | null
+  /** Obiettivi del gruppo, ognuno con la sua simulazione dei soli esami del gruppo */
+  scenarios: Scenario[]
+  activeScenarioId: string | null
 }
+
+/**
+ * Ambito di una pianificazione: la media generale (`main`) o quella del gruppo di esami (`group`).
+ * Le due hanno obiettivi e simulazioni separati, ma usano gli stessi calcoli.
+ */
+export type PlanningScope = 'main' | 'group'
 
 export const DEFAULT_GROUP_NAME = 'Gruppo di esami'
 export const MAX_GROUP_NAME_LENGTH = 40
 
 export function createDefaultGroup(): ExamGroup {
-  return { enabled: false, name: DEFAULT_GROUP_NAME, goal: null }
+  return { enabled: false, name: DEFAULT_GROUP_NAME, scenarios: [], activeScenarioId: null }
 }
 
 export function createEmptyData(): AppData {

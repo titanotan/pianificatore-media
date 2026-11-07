@@ -7,7 +7,7 @@ import { StatusBadge } from '../../components/StatusBadge'
 import { formatAverage, formatCfu, formatRequired } from '../../domain/format'
 import { describeGoal } from '../../domain/messages'
 import { EPSILON } from '../../domain/planning'
-import { scenarioLabel } from '../../domain/scenarios'
+import { scenarioLabel, type ScopeView } from '../../domain/scenarios'
 import type { Plan } from '../../domain/simulation'
 import { MAX_GRADE, MIN_GRADE, type Scenario } from '../../domain/types'
 import { useAppState } from '../../state/context'
@@ -24,13 +24,15 @@ function suggestedGrade(plan: Plan): string | undefined {
 }
 
 interface SimulationPanelProps {
+  /** Ambito (media generale o gruppo): dice quali esami simulare e dove salvare i voti */
+  view: ScopeView
   scenario: Scenario
-  plan: Plan
 }
 
 /** Dettaglio dell'obiettivo selezionato: stato, barra e simulazione dei voti futuri. */
-export function SimulationPanel({ scenario, plan }: SimulationPanelProps) {
+export function SimulationPanel({ view, scenario }: SimulationPanelProps) {
   const { data, dispatch } = useAppState()
+  const { scope, plan, futureExams } = view
   const [confirmClear, setConfirmClear] = useState(false)
   const message = describeGoal(plan, data.settings.lodeValue)
   const evaluation = plan.evaluation
@@ -55,10 +57,10 @@ export function SimulationPanel({ scenario, plan }: SimulationPanelProps) {
         : `in ${future.freeCount} ${future.freeCount === 1 ? 'esame' : 'esami'} (${formatCfu(future.freeCfu)})`
 
   return (
-    <Card as="section" className={styles.panel} aria-labelledby="simulazione-titolo">
+    <Card as="section" className={styles.panel} aria-labelledby={`simulazione-${scope}`}>
       <div className={styles.panelHeader}>
         <div>
-          <h2 id="simulazione-titolo" className={styles.panelTitle}>
+          <h2 id={`simulazione-${scope}`} className={styles.panelTitle}>
             Simulazione · {scenarioLabel(scenario)}
           </h2>
           <p className={styles.panelSubtitle}>
@@ -104,9 +106,18 @@ export function SimulationPanel({ scenario, plan }: SimulationPanelProps) {
         </div>
       </div>
 
-      {data.futureExams.length === 0 ? (
+      {futureExams.length === 0 ? (
         <p className={styles.empty}>
-          Aggiungi gli <a href="#/futuri">esami da sostenere</a> per simulare i voti.
+          {scope === 'group' ? (
+            <>
+              Nessun esame del gruppo da sostenere: spunta «Nel gruppo» negli{' '}
+              <a href="#/futuri">esami da sostenere</a> per simularne i voti.
+            </>
+          ) : (
+            <>
+              Aggiungi gli <a href="#/futuri">esami da sostenere</a> per simulare i voti.
+            </>
+          )}
         </p>
       ) : (
         <>
@@ -116,16 +127,16 @@ export function SimulationPanel({ scenario, plan }: SimulationPanelProps) {
             ricalcola sugli altri esami. Nei campi vuoti vedi il voto che ti servirebbe.
           </p>
           <SimulationTable
-            exams={data.futureExams}
+            exams={futureExams}
             predictions={scenario.predictions}
             suggestion={suggestedGrade(plan)}
-            groupName={data.group.enabled ? data.group.name : undefined}
+            groupName={scope === 'main' && data.group.enabled ? data.group.name : undefined}
             onSet={(examId, grade, lode) =>
-              dispatch({ type: 'prediction/set', scenarioId, examId, grade, lode })
+              dispatch({ type: 'prediction/set', scope, scenarioId, examId, grade, lode })
             }
-            onClear={(examId) => dispatch({ type: 'prediction/clear', scenarioId, examId })}
+            onClear={(examId) => dispatch({ type: 'prediction/clear', scope, scenarioId, examId })}
             onLock={(examId, locked) =>
-              dispatch({ type: 'prediction/setLocked', scenarioId, examId, locked })
+              dispatch({ type: 'prediction/setLocked', scope, scenarioId, examId, locked })
             }
           />
         </>
@@ -137,7 +148,7 @@ export function SimulationPanel({ scenario, plan }: SimulationPanelProps) {
         message={`Verranno cancellati tutti i voti previsti e bloccati dell’obiettivo ${scenarioLabel(scenario)}. Gli altri obiettivi non cambiano.`}
         confirmLabel="Svuota"
         onConfirm={() => {
-          dispatch({ type: 'prediction/clearAll', scenarioId })
+          dispatch({ type: 'prediction/clearAll', scope, scenarioId })
           setConfirmClear(false)
         }}
         onCancel={() => setConfirmClear(false)}

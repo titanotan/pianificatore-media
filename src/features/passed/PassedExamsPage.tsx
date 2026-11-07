@@ -15,7 +15,7 @@ import { PassedExamForm } from './PassedExamForm'
 import { PassedExamTable } from './PassedExamTable'
 
 export function PassedExamsPage() {
-  const { data, dispatch, plan, groupPlan } = useAppState()
+  const { data, dispatch, plan, group } = useAppState()
   const editor = useEditorState<PassedExam>()
 
   const exams = data.passedExams
@@ -80,11 +80,11 @@ export function PassedExamsPage() {
               value={exams.length}
               hint={lodeCount === 1 ? '1 con lode' : `${lodeCount} con lode`}
             />
-            {groupPlan && (
+            {group && (
               <Stat
                 label={`Media ${data.group.name}`}
-                value={formatAverage(groupPlan.passed.average)}
-                hint={`su ${formatCfu(groupPlan.passed.cfu)} del gruppo`}
+                value={formatAverage(group.plan.passed.average)}
+                hint={`su ${formatCfu(group.plan.passed.cfu)} del gruppo`}
               />
             )}
           </div>

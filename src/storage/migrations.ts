@@ -6,7 +6,7 @@
  * i dati dalla versione precedente: chi ha già dei dati salvati non perde nulla.
  */
 
-export const SCHEMA_VERSION = 3
+export const SCHEMA_VERSION = 4
 
 export type Migration = (data: unknown) => unknown
 
@@ -43,10 +43,27 @@ export function migrateV2toV3(data: unknown): unknown {
   return { ...data, group: { enabled: false, name: 'Gruppo di esami', goal: null } }
 }
 
+/**
+ * v3 → v4: il gruppo passa da un solo obiettivo a più obiettivi con simulazioni proprie.
+ * L'obiettivo esistente del gruppo diventa il suo primo scenario.
+ */
+export function migrateV3toV4(data: unknown): unknown {
+  if (!isObject(data) || !isObject(data.group)) return data
+  const { goal, ...group } = data.group
+  const scenarios = isObject(goal)
+    ? [{ id: 'gruppo-obiettivo-1', name: '', goal, predictions: {} }]
+    : []
+  return {
+    ...data,
+    group: { ...group, scenarios, activeScenarioId: scenarios[0]?.id ?? null },
+  }
+}
+
 /** Chiave = versione di partenza. */
 export const MIGRATIONS: Readonly<Record<number, Migration>> = {
   1: migrateV1toV2,
   2: migrateV2toV3,
+  3: migrateV3toV4,
 }
 
 export class UnsupportedVersionError extends Error {

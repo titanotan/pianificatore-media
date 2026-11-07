@@ -130,40 +130,45 @@ export function sanitizeAppData(raw: unknown): SanitizeResult {
     : DEFAULT_LODE_VALUE
   if (settingsRaw.lodeValue !== undefined && lodeValue !== settingsRaw.lodeValue) dropped += 1
 
-  const scenarioList = sanitizeList<Scenario>(raw.scenarios, (entry) => {
-    if (!isObject(entry) || !isValidId(entry.id)) return null
-    const goal = sanitizeGoal(entry.goal)
-    if (!goal) return null
-    const predictions: Record<string, Prediction> = {}
-    if (isObject(entry.predictions)) {
-      for (const [examId, value] of Object.entries(entry.predictions)) {
-        const prediction = sanitizePrediction(value)
-        // Le previsioni di esami che non esistono più vengono scartate senza contarle come errori
-        if (prediction && futureIds.has(examId)) predictions[examId] = prediction
-        else if (!prediction) dropped += 1
+  // Obiettivi della media generale e del gruppo: stesse regole
+  const sanitizeScenarios = (rawScenarios: unknown, rawActiveId: unknown) => {
+    const list = sanitizeList<Scenario>(rawScenarios, (entry) => {
+      if (!isObject(entry) || !isValidId(entry.id)) return null
+      const goal = sanitizeGoal(entry.goal)
+      if (!goal) return null
+      const predictions: Record<string, Prediction> = {}
+      if (isObject(entry.predictions)) {
+        for (const [examId, value] of Object.entries(entry.predictions)) {
+          const prediction = sanitizePrediction(value)
+          // Le previsioni di esami che non esistono più vengono scartate senza contarle come errori
+          if (prediction && futureIds.has(examId)) predictions[examId] = prediction
+          else if (!prediction) dropped += 1
+        }
       }
-    }
-    return {
-      id: entry.id,
-      name: typeof entry.name === 'string' ? (cleanName(entry.name) ?? '') : '',
-      goal,
-      predictions,
-    }
-  })
-  dropped += scenarioList.dropped
+      return {
+        id: entry.id,
+        name: typeof entry.name === 'string' ? (cleanName(entry.name) ?? '') : '',
+        goal,
+        predictions,
+      }
+    })
+    dropped += list.dropped
+    const scenarios = list.items.slice(0, MAX_SCENARIOS)
+    dropped += list.items.length - scenarios.length
+    const activeScenarioId = scenarios.some((s) => s.id === rawActiveId)
+      ? (rawActiveId as string)
+      : (scenarios[0]?.id ?? null)
+    return { scenarios, activeScenarioId }
+  }
 
-  const scenarios = scenarioList.items.slice(0, MAX_SCENARIOS)
-  dropped += scenarioList.items.length - scenarios.length
-  const activeScenarioId = scenarios.some((s) => s.id === raw.activeScenarioId)
-    ? (raw.activeScenarioId as string)
-    : (scenarios[0]?.id ?? null)
+  const { scenarios, activeScenarioId } = sanitizeScenarios(raw.scenarios, raw.activeScenarioId)
 
   const groupRaw = isObject(raw.group) ? raw.group : {}
   const groupName = typeof groupRaw.name === 'string' ? groupRaw.name.trim() : ''
   const group = {
     enabled: groupRaw.enabled === true,
     name: groupName && groupName.length <= MAX_GROUP_NAME_LENGTH ? groupName : DEFAULT_GROUP_NAME,
-    goal: sanitizeGoal(groupRaw.goal),
+    ...sanitizeScenarios(groupRaw.scenarios, groupRaw.activeScenarioId),
   }
 
   return {

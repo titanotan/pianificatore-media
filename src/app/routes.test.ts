@@ -7,6 +7,7 @@ describe('parseRoute', () => {
     expect(parseRoute('#/libretto')).toBe('libretto')
     expect(parseRoute('#/futuri')).toBe('futuri')
     expect(parseRoute('#/impostazioni')).toBe('impostazioni')
+    expect(parseRoute('#/gruppo')).toBe('gruppo')
   })
 
   it('accetta varianti senza barra, maiuscole e sotto-percorsi', () => {

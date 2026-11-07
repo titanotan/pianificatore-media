@@ -1,9 +1,17 @@
-import { BookOpenCheck, CalendarClock, Settings, Target, type LucideIcon } from 'lucide-react'
-import { ROUTES, routeHref, type RouteId } from '../app/routes'
+import {
+  BookOpenCheck,
+  CalendarClock,
+  Layers,
+  Settings,
+  Target,
+  type LucideIcon,
+} from 'lucide-react'
+import { routeHref, type RouteId, type RouteInfo } from '../app/routes'
 import styles from './Nav.module.css'
 
 const ICONS: Record<RouteId, LucideIcon> = {
   piano: Target,
+  gruppo: Layers,
   libretto: BookOpenCheck,
   futuri: CalendarClock,
   impostazioni: Settings,
@@ -11,14 +19,16 @@ const ICONS: Record<RouteId, LucideIcon> = {
 
 interface NavProps {
   current: RouteId
+  /** Voci da mostrare (il gruppo compare solo se attivo) */
+  routes: readonly RouteInfo[]
 }
 
 /** Menu principale: verticale nel menu laterale, orizzontale nella barra in basso su smartphone. */
-export function Nav({ current }: NavProps) {
+export function Nav({ current, routes }: NavProps) {
   return (
     <nav aria-label="Sezioni" className={styles.nav}>
       <ul className={styles.list}>
-        {ROUTES.map(({ id, label, shortLabel }) => {
+        {routes.map(({ id, label, shortLabel }) => {
           const Icon = ICONS[id]
           const active = id === current
           return (

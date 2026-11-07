@@ -40,6 +40,14 @@
   flex-shrink: 0;
 }
 
+/* Il nome del gruppo può essere lungo: niente a capo nel menu */
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .shortLabel {
   display: none;
 }

@@ -1,12 +1,13 @@
 import type { ReactNode } from 'react'
 import { Nav } from '../components/Nav'
 import { ThemeToggle } from '../components/ThemeToggle'
-import type { RouteId } from './routes'
+import type { RouteId, RouteInfo } from './routes'
 import type { Theme } from './theme'
 import styles from './AppShell.module.css'
 
 interface AppShellProps {
   route: RouteId
+  routes: readonly RouteInfo[]
   theme: Theme
   onToggleTheme: () => void
   children: ReactNode
@@ -25,7 +26,7 @@ function Brand() {
  * Struttura della pagina.
  * Computer: menu laterale fisso a sinistra. Smartphone: barra in alto (logo + tema) e menu in basso.
  */
-export function AppShell({ route, theme, onToggleTheme, children }: AppShellProps) {
+export function AppShell({ route, routes, theme, onToggleTheme, children }: AppShellProps) {
   return (
     <div className={styles.shell}>
       <a href="#contenuto" className={styles.skipLink}>
@@ -41,7 +42,7 @@ export function AppShell({ route, theme, onToggleTheme, children }: AppShellProp
         <div className={styles.sidebarBrand}>
           <Brand />
         </div>
-        <Nav current={route} />
+        <Nav current={route} routes={routes} />
         <div className={styles.sidebarFooter}>
           <span>Tema</span>
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />

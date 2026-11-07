@@ -65,7 +65,7 @@ export function GroupSettings() {
             <p className={styles.muted}>
               {count === 0
                 ? 'Nessun esame nel gruppo: aggiungili spuntando «Nel gruppo» quando inserisci o modifichi un esame.'
-                : `${count === 1 ? '1 esame' : `${count} esami`} nel gruppo. Trovi media e obiettivo del gruppo nella Pianificazione.`}
+                : `${count === 1 ? '1 esame' : `${count} esami`} nel gruppo. Trovi media, obiettivi e simulazioni del gruppo nella sua pagina, nel menu.`}
             </p>
           </div>
         )}

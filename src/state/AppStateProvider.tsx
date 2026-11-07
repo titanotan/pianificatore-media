@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react'
-import { planForGroup } from '../domain/group'
-import { planAllScenarios, planForScenario, reachableRange } from '../domain/scenarios'
+import { buildScopeView } from '../domain/scenarios'
 import { getBrowserStorage, loadData, saveData } from '../storage/storage'
 import { AppStateContext, type AppStateValue } from './context'
-import { appReducer, getActiveScenario } from './reducer'
+import { appReducer } from './reducer'
 
 /** Carica i dati all'avvio, li salva a ogni modifica e mette a disposizione i calcoli. */
 export function AppStateProvider({ children }: { children: ReactNode }) {
@@ -25,13 +24,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [data, storage, initial.status])
 
   const derived = useMemo(() => {
-    const activeScenario = getActiveScenario(data)
+    const main = buildScopeView(data, 'main')
     return {
-      activeScenario,
-      plan: planForScenario(data, activeScenario),
-      scenarioPlans: planAllScenarios(data),
-      range: reachableRange(data),
-      groupPlan: data.group.enabled ? planForGroup(data, activeScenario) : null,
+      main,
+      plan: main.plan,
+      group: data.group.enabled ? buildScopeView(data, 'group') : null,
     }
   }, [data])
 
