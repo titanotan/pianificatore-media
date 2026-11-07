@@ -16,3 +16,46 @@
     gap: var(--space-3);
   }
 }
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+  font-size: var(--text-sm);
+}
+
+.goalCta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.goalCta > div {
+  flex: 1;
+}
+
+.goalIcon {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.ctaTitle {
+  font-size: var(--text-md);
+  font-weight: 650;
+}
+
+.ctaText {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 767px) {
+  .goalCta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

@@ -1,3 +1,11 @@
+/*
+ * Stile condiviso delle tabelle d'esami (libretto, esami futuri).
+ * Su smartphone ogni riga diventa una scheda:
+ *   [ .name   ][ .aside   ]
+ *   [ .meta   ][ .actions ]
+ * Le celle con .hideOnMobile spariscono; gli elementi .mobileOnly compaiono solo lì.
+ */
+
 .wrapper {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
@@ -77,7 +85,7 @@
   font-size: 0.75em;
 }
 
-.date {
+.muted {
   color: var(--text-muted);
   white-space: nowrap;
 }
@@ -97,7 +105,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
-      'name grade'
+      'name aside'
       'meta actions';
     align-items: center;
     column-gap: var(--space-3);
@@ -119,11 +127,11 @@
     grid-area: name;
   }
 
-  .table .grade {
-    grid-area: grade;
+  .table .aside {
+    grid-area: aside;
   }
 
-  .table .cfu {
+  .table .meta {
     grid-area: meta;
     text-align: left;
     color: var(--text-muted);
@@ -134,8 +142,7 @@
     display: inline;
   }
 
-  /* La data è mostrata accanto ai CFU */
-  .date {
+  .hideOnMobile {
     display: none;
   }
 

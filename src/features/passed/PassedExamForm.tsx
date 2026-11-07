@@ -10,7 +10,7 @@ import {
   type PassedExamField,
   type PassedExamForm as FormValues,
 } from '../../domain/validation'
-import styles from './PassedExamForm.module.css'
+import styles from '../../components/ExamForm.module.css'
 
 interface PassedExamFormProps {
   /** Esame da modificare; se assente il modulo serve ad aggiungerne uno nuovo */

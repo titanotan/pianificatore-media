@@ -59,6 +59,6 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 - [x] M0 — Fondamenta: progetto, temi chiaro/scuro, navigazione, deploy
 - [x] M1 — Logica di calcolo e salvataggio
 - [x] M2 — Libretto e impostazioni
-- [ ] M3 — Esami futuri e obiettivo
+- [x] M3 — Esami futuri e obiettivo
 - [ ] M4 — Pianificazione e simulazione
 - [ ] M5 — Primo avvio, smartphone e pubblicazione

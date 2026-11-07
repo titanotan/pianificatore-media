@@ -2,7 +2,7 @@ import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '../../components/Button'
 import { formatDate } from '../../domain/format'
 import type { PassedExam } from '../../domain/types'
-import styles from './PassedExamTable.module.css'
+import styles from '../../components/ExamTable.module.css'
 
 interface PassedExamTableProps {
   exams: readonly PassedExam[]
@@ -37,7 +37,7 @@ export function PassedExamTable({ exams, onEdit, onDelete }: PassedExamTableProp
               <th scope="row" className={styles.name}>
                 {exam.name}
               </th>
-              <td className={`${styles.cfu} ${styles.numeric} num`}>
+              <td className={`${styles.meta} ${styles.numeric} num`}>
                 {exam.cfu}
                 {/* Su smartphone CFU e data stanno sulla stessa riga, sotto il nome */}
                 <span className={styles.mobileOnly} aria-hidden="true">
@@ -45,14 +45,14 @@ export function PassedExamTable({ exams, onEdit, onDelete }: PassedExamTableProp
                   CFU{exam.date && ` · ${formatDate(exam.date)}`}
                 </span>
               </td>
-              <td className={`${styles.grade} ${styles.numeric}`}>
+              <td className={`${styles.aside} ${styles.numeric}`}>
                 <span className={exam.lode ? `${styles.badge} ${styles.lode}` : styles.badge}>
                   {exam.grade}
                   {exam.lode && <span className={styles.lodeMark}>L</span>}
                 </span>
                 {exam.lode && <span className="sr-only"> e lode</span>}
               </td>
-              <td className={styles.date}>{formatDate(exam.date)}</td>
+              <td className={`${styles.muted} ${styles.hideOnMobile}`}>{formatDate(exam.date)}</td>
               <td className={styles.actions}>
                 <Button
                   variant="ghost"

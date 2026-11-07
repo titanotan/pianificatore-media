@@ -24,3 +24,9 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.help {
+  margin-top: var(--space-3);
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
