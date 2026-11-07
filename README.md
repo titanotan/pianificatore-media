@@ -3,7 +3,11 @@
 App web per tenere sotto controllo la media universitaria. Non è un semplice libretto: il cuore
 dell'app è capire **quali voti servono nei prossimi esami** per raggiungere la media obiettivo.
 
-I requisiti completi sono in [`prompt.md`](prompt.md).
+Il progetto è nato da un prompt di requisiti, conservato in
+[`docs/requisiti-iniziali.md`](docs/requisiti-iniziali.md); l'app nel frattempo si è evoluta e le
+funzionalità attuali sono descritte qui sotto. È stato sviluppato con l'assistenza di
+[Claude Code](https://claude.com/claude-code) (Anthropic), una milestone alla volta, con test per
+la logica di calcolo.
 
 ## Funzionalità
 
