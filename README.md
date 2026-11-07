@@ -51,6 +51,10 @@ src/
   nella media generale.
 - **Media finale prevista**: esami sostenuti + esami futuri con un voto previsto.
 - La media necessaria è mostrata arrotondata per eccesso, per non sottostimare ciò che serve.
+- **Genera voti** (`src/domain/distribution.ts`): propone voti interi 18–30 negli esami non
+  bloccati partendo dalla media necessaria, con uno scostamento per difficoltà (facile +1,5,
+  difficile −1,5) e una variazione casuale; poi corregge i voti finché la media raggiunge
+  l'obiettivo senza eccedere. I voti bloccati non cambiano; la lode non viene generata.
 
 ## Pubblicazione su GitHub Pages
 
@@ -67,5 +71,5 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 - [x] M4 — Pianificazione con più obiettivi e simulazione
 - [x] M5 — Gruppo di esami (funzione aggiuntiva)
 - [x] M6 — Pagina del gruppo con più obiettivi
-- [ ] M7 — Voti casuali in base alla difficoltà
+- [x] M7 — Voti casuali in base alla difficoltà
 - [ ] M8 — Primo avvio, smartphone e pubblicazione

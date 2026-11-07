@@ -50,6 +50,13 @@ export type AppAction =
       locked: boolean
     }
   | { type: 'prediction/clearAll'; scope: PlanningScope; scenarioId: string }
+  /** Sostituisce tutti i voti previsti di uno scenario (es. "Genera voti" o il suo annullamento) */
+  | {
+      type: 'prediction/replaceAll'
+      scope: PlanningScope
+      scenarioId: string
+      predictions: Record<string, Prediction>
+    }
   | { type: 'data/replace'; data: AppData }
   | { type: 'data/reset' }
 
@@ -203,6 +210,16 @@ export function appReducer(state: AppData, action: AppAction): AppData {
       return updatePredictions(state, action.scope, action.scenarioId, (predictions) =>
         withoutKey(predictions, action.examId),
       )
+
+    case 'prediction/replaceAll': {
+      const predictions = Object.fromEntries(
+        Object.entries(keepExisting(state, action.predictions)).map(([id, p]) => [
+          id,
+          withLodeRule(p),
+        ]),
+      )
+      return updatePredictions(state, action.scope, action.scenarioId, () => predictions)
+    }
 
     case 'prediction/clearAll':
       return updatePredictions(state, action.scope, action.scenarioId, () => ({}))

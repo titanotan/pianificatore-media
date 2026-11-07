@@ -236,6 +236,24 @@ describe('esami futuri e voti previsti', () => {
     expect(predictionsOf(state, 's27').f1.lode).toBe(false)
   })
 
+  it('sostituisce tutti i voti previsti (es. "Genera voti")', () => {
+    const state = appReducer(withGoals(), {
+      type: 'prediction/replaceAll',
+      scope: 'main',
+      scenarioId: 's27',
+      predictions: {
+        f1: { grade: 28, lode: true, locked: false },
+        f2: { grade: 30, lode: true, locked: true },
+        sparito: { grade: 25, lode: false, locked: false },
+      },
+    })
+    expect(predictionsOf(state, 's27')).toEqual({
+      f1: { grade: 28, lode: false, locked: false }, // lode tolta: il voto non è 30
+      f2: { grade: 30, lode: true, locked: true },
+    })
+    expect(predictionsOf(state, 's25')).toEqual({})
+  })
+
   it('cancella un voto previsto o tutta la simulazione', () => {
     let state = run(
       [

@@ -115,7 +115,9 @@ export function PlanningView({ view, firstGoalText }: PlanningViewProps) {
             )}
           </section>
 
-          {activeScenario && <SimulationPanel view={view} scenario={activeScenario} />}
+          {activeScenario && (
+            <SimulationPanel key={activeScenario.id} view={view} scenario={activeScenario} />
+          )}
         </>
       )}
 

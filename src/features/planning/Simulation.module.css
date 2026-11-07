@@ -13,6 +13,27 @@
   flex-wrap: wrap;
 }
 
+.panelActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.generated {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  font-size: var(--text-sm);
+}
+
+.generatedWarn {
+  background: var(--warn-soft);
+}
+
 .panelTitle {
   font-size: var(--text-lg);
   font-weight: 650;
