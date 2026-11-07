@@ -2,11 +2,21 @@
 
 **Prova l'app: https://titanotan.github.io/pianificatore-media/**
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-pianificazione-scuro.png">
+  <img alt="Pagina di pianificazione con più obiettivi e simulazione" src="docs/screenshot-pianificazione-chiaro.png">
+</picture>
+
 App web per tenere sotto controllo la media universitaria. Non è un semplice libretto: il cuore
 dell'app è capire **quali voti servono nei prossimi esami** per raggiungere la media obiettivo.
 
 ## Come è stato sviluppato
-Il progetto è un esperimento con Claude Code. Io ho definito il problema, i requisiti, le priorit e le scelte di prodotto, e ho provato e revisionato ogni milestone; il codice è stato scritto in gran parte da Claude Code. I requisiti iniziali sono in docs/requisiti-iniziali.md
+
+Il progetto è un esperimento con Claude Code. Io ho definito il problema, i requisiti, le priorità
+e le scelte di prodotto, e ho provato e revisionato ogni milestone; il codice è stato scritto in
+gran parte da Claude Code. I requisiti iniziali sono in
+[`docs/requisiti-iniziali.md`](docs/requisiti-iniziali.md); l'app nel frattempo si è evoluta e le
+funzionalità attuali sono descritte qui sotto.
 
 ## Funzionalità
 
@@ -45,8 +55,12 @@ npm run lint       # controlla il codice
 npm run format     # formatta il codice con Prettier
 ```
 
-L'accessibilità è stata verificata con [axe-core](https://github.com/dequelabs/axe-core)
-(WCAG 2.1 AA) su tutte le pagine, in tema chiaro e scuro, su computer e smartphone.
+## Accessibilità
+
+Tutte le pagine sono state controllate con [axe-core](https://github.com/dequelabs/axe-core)
+rispetto ai criteri WCAG 2.1 AA, in tema chiaro e scuro, su computer e smartphone, senza errori
+rilevati. Gli strumenti automatici individuano solo una parte dei possibili problemi: segnalazioni
+da chi usa tecnologie assistive sono benvenute.
 
 ## Struttura
 
@@ -73,12 +87,29 @@ src/
 - **Gruppo di esami** (funzione aggiuntiva, da attivare in Impostazioni): una pagina propria nel
   menu, con più obiettivi e simulazioni calcolati solo sugli esami del gruppo, che restano anche
   nella media generale.
-- **Media finale prevista**: esami sostenuti + esami futuri con un voto previsto.
+- **Media finale prevista**: calcolata solo sugli esami con un voto, cioè quelli sostenuti più
+  quelli futuri con un voto previsto. Gli esami futuri senza voto previsto non vengono contati.
 - La media necessaria è mostrata arrotondata per eccesso, per non sottostimare ciò che serve.
 - **Genera voti** (`src/domain/distribution.ts`): propone voti interi 18–30 negli esami non
   bloccati partendo dalla media necessaria, con uno scostamento per difficoltà (facile +1,5,
   difficile −1,5) e una variazione casuale; poi corregge i voti finché la media raggiunge
   l'obiettivo senza eccedere. I voti bloccati non cambiano; la lode non viene generata.
+
+## Limitazioni
+
+- **I dati restano solo nel browser** in cui li hai inseriti: non si sincronizzano tra
+  dispositivi e vanno persi se cancelli i dati di navigazione del sito o usi una finestra in
+  incognito.
+- **Genera voti è casuale**: ogni volta propone una combinazione diversa. È uno spunto per
+  pianificare, non una previsione.
+- **Le regole del voto di laurea cambiano da ateneo ad ateneo** (valore della lode, esami esclusi,
+  bonus): l'app calcola medie ponderate e non sostituisce le regole ufficiali del tuo corso di
+  studi.
+
+## Prossimi passi
+
+- Esportazione e importazione dei dati in un file JSON, per fare un backup e spostarli su un altro
+  dispositivo.
 
 ## Pubblicazione su GitHub Pages
 
