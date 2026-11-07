@@ -42,6 +42,8 @@ export interface PassedExam {
   lode: boolean
   /** Data facoltativa (AAAA-MM-GG), utile in futuro per il grafico della media nel tempo */
   date?: string
+  /** Fa parte del gruppo di esami (funzione aggiuntiva); assente = no */
+  inGroup?: boolean
 }
 
 /** Esame ancora da sostenere. */
@@ -50,6 +52,8 @@ export interface FutureExam {
   name: string
   cfu: number
   difficulty: Difficulty
+  /** Fa parte del gruppo di esami (funzione aggiuntiva); assente = no */
+  inGroup?: boolean
   // In futuro: sessionId per organizzare gli esami per sessione
 }
 
@@ -99,6 +103,26 @@ export interface AppData {
   scenarios: Scenario[]
   /** Obiettivo selezionato nella Pianificazione; `null` se non ce ne sono */
   activeScenarioId: string | null
+  /** Gruppo di esami (funzione aggiuntiva, spenta di default) */
+  group: ExamGroup
+}
+
+/**
+ * Gruppo ristretto di esami con una sua media (es. gli esami che l'ateneo usa per i punti
+ * di laurea). Gli esami del gruppo restano anche nella media generale.
+ */
+export interface ExamGroup {
+  /** Funzione attiva: se spenta, nell'interfaccia non compare nulla (i dati restano salvati) */
+  enabled: boolean
+  name: string
+  goal: Goal | null
+}
+
+export const DEFAULT_GROUP_NAME = 'Gruppo di esami'
+export const MAX_GROUP_NAME_LENGTH = 40
+
+export function createDefaultGroup(): ExamGroup {
+  return { enabled: false, name: DEFAULT_GROUP_NAME, goal: null }
 }
 
 export function createEmptyData(): AppData {
@@ -108,5 +132,6 @@ export function createEmptyData(): AppData {
     settings: { lodeValue: DEFAULT_LODE_VALUE },
     scenarios: [],
     activeScenarioId: null,
+    group: createDefaultGroup(),
   }
 }

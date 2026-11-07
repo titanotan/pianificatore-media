@@ -6,7 +6,7 @@
  * i dati dalla versione precedente: chi ha già dei dati salvati non perde nulla.
  */
 
-export const SCHEMA_VERSION = 2
+export const SCHEMA_VERSION = 3
 
 export type Migration = (data: unknown) => unknown
 
@@ -37,9 +37,16 @@ export function migrateV1toV2(data: unknown): unknown {
   }
 }
 
+/** v2 → v3: aggiunto il gruppo di esami (funzione aggiuntiva, spenta). */
+export function migrateV2toV3(data: unknown): unknown {
+  if (!isObject(data)) return data
+  return { ...data, group: { enabled: false, name: 'Gruppo di esami', goal: null } }
+}
+
 /** Chiave = versione di partenza. */
 export const MIGRATIONS: Readonly<Record<number, Migration>> = {
   1: migrateV1toV2,
+  2: migrateV2toV3,
 }
 
 export class UnsupportedVersionError extends Error {

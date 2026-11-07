@@ -11,6 +11,7 @@ import { MAX_GRADE, MAX_SCENARIOS, type Scenario } from '../../domain/types'
 import { useAppState } from '../../state/context'
 import { GoalDialog, type GoalDialogMode } from './GoalDialog'
 import { GoalsTable } from './GoalsTable'
+import { GroupCard } from './GroupCard'
 import styles from './PlanningPage.module.css'
 import { SimulationPanel } from './SimulationPanel'
 
@@ -67,6 +68,8 @@ export function PlanningPage() {
           }
         />
       </div>
+
+      <GroupCard />
 
       {data.scenarios.length === 0 ? (
         <Card className={styles.goalCta}>

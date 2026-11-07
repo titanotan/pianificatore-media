@@ -46,6 +46,8 @@ src/
   (obiettivo × CFU totali − Σ voti sostenuti − Σ voti bloccati) / CFU non bloccati.
 - **Stato dell'obiettivo**: già raggiunto (basta 18 ovunque) · raggiungibile · al limite (serve
   29 o più) · solo con lodi (serve più di 30) · impossibile.
+- **Gruppo di esami** (funzione aggiuntiva, da attivare in Impostazioni): media, obiettivo e media
+  necessaria calcolati solo sugli esami del gruppo, che restano anche nella media generale.
 - **Media finale prevista**: esami sostenuti + esami futuri con un voto previsto.
 - La media necessaria è mostrata arrotondata per eccesso, per non sottostimare ciò che serve.
 
@@ -62,4 +64,5 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 - [x] M2 — Libretto e impostazioni
 - [x] M3 — Esami futuri e obiettivo
 - [x] M4 — Pianificazione con più obiettivi e simulazione
-- [ ] M5 — Primo avvio, smartphone e pubblicazione
+- [x] M5 — Gruppo di esami (funzione aggiuntiva)
+- [ ] M6 — Primo avvio, smartphone e pubblicazione

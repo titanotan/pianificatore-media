@@ -119,6 +119,7 @@ export function SimulationPanel({ scenario, plan }: SimulationPanelProps) {
             exams={data.futureExams}
             predictions={scenario.predictions}
             suggestion={suggestedGrade(plan)}
+            groupName={data.group.enabled ? data.group.name : undefined}
             onSet={(examId, grade, lode) =>
               dispatch({ type: 'prediction/set', scenarioId, examId, grade, lode })
             }

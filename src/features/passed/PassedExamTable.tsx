@@ -1,5 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '../../components/Button'
+import { GroupTag } from '../../components/GroupTag'
 import { formatDate } from '../../domain/format'
 import type { PassedExam } from '../../domain/types'
 import styles from '../../components/ExamTable.module.css'
@@ -8,10 +9,12 @@ interface PassedExamTableProps {
   exams: readonly PassedExam[]
   onEdit: (exam: PassedExam) => void
   onDelete: (exam: PassedExam) => void
+  /** Nome del gruppo di esami, se la funzione è attiva */
+  groupName?: string
 }
 
 /** Elenco degli esami sostenuti: tabella su computer, schede su smartphone. */
-export function PassedExamTable({ exams, onEdit, onDelete }: PassedExamTableProps) {
+export function PassedExamTable({ exams, onEdit, onDelete, groupName }: PassedExamTableProps) {
   return (
     <div className={styles.wrapper}>
       <table className={styles.table}>
@@ -36,6 +39,7 @@ export function PassedExamTable({ exams, onEdit, onDelete }: PassedExamTableProp
             <tr key={exam.id}>
               <th scope="row" className={styles.name}>
                 {exam.name}
+                {groupName && exam.inGroup && <GroupTag name={groupName} />}
               </th>
               <td className={`${styles.meta} ${styles.numeric} num`}>
                 {exam.cfu}

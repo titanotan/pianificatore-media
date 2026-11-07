@@ -62,3 +62,14 @@
 .muted {
   color: var(--text-subtle);
 }
+
+.remove {
+  margin-right: auto;
+  color: var(--danger);
+}
+
+@media (max-width: 767px) {
+  .remove {
+    margin-right: 0;
+  }
+}

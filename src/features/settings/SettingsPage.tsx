@@ -9,6 +9,7 @@ import { summarizePassedExams } from '../../domain/grades'
 import { formatAverage, formatNumber } from '../../domain/format'
 import { MAX_LODE_VALUE, MIN_LODE_VALUE } from '../../domain/types'
 import { useAppState } from '../../state/context'
+import { GroupSettings } from './GroupSettings'
 import styles from './SettingsPage.module.css'
 
 const LODE_OPTIONS = Array.from({ length: MAX_LODE_VALUE - MIN_LODE_VALUE + 1 }, (_, i) => {
@@ -79,6 +80,8 @@ export function SettingsPage() {
             </p>
           )}
         </Card>
+
+        <GroupSettings />
 
         <Card>
           <h2 className={styles.title}>I tuoi dati</h2>

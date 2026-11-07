@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Button } from '../../components/Button'
-import { TextField } from '../../components/Field'
+import { Checkbox, TextField } from '../../components/Field'
 import { ModalActions } from '../../components/Modal'
 import { SegmentedControl } from '../../components/SegmentedControl'
 import {
@@ -25,13 +25,22 @@ interface FutureExamFormProps {
   notice?: string | null
   onSave: (exam: Omit<FutureExam, 'id'>, addAnother: boolean) => void
   onCancel: () => void
+  /** Nome del gruppo di esami, se la funzione è attiva */
+  groupName?: string
 }
 
-export function FutureExamForm({ initial, notice, onSave, onCancel }: FutureExamFormProps) {
+export function FutureExamForm({
+  initial,
+  notice,
+  onSave,
+  onCancel,
+  groupName,
+}: FutureExamFormProps) {
   const [values, setValues] = useState<FormValues>(() => ({
     name: initial?.name ?? '',
     cfu: initial ? String(initial.cfu) : '',
     difficulty: initial?.difficulty ?? 'medium',
+    inGroup: initial?.inGroup ?? false,
   }))
   const [showErrors, setShowErrors] = useState(false)
   const isEdit = initial !== undefined
@@ -93,6 +102,16 @@ export function FutureExamForm({ initial, notice, onSave, onCancel }: FutureExam
             onChange={(v) => update('difficulty', v)}
           />
         </div>
+        {groupName && (
+          <div className={styles.full}>
+            <Checkbox
+              label={`Nel gruppo «${groupName}»`}
+              checked={values.inGroup ?? false}
+              onChange={(v) => update('inGroup', v)}
+              hint="Conta anche nella media del gruppo (resta nella media generale)."
+            />
+          </div>
+        )}
       </div>
       <p className={styles.help}>
         Per ora la difficoltà è solo un promemoria: in futuro servirà a proporti una distribuzione

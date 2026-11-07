@@ -1,5 +1,6 @@
 import { Lock, LockOpen } from 'lucide-react'
 import { DifficultyBadge } from '../../components/DifficultyBadge'
+import { GroupTag } from '../../components/GroupTag'
 import tableStyles from '../../components/ExamTable.module.css'
 import { MAX_GRADE, type FutureExam, type Prediction } from '../../domain/types'
 import { GradeInput } from './GradeInput'
@@ -13,6 +14,8 @@ interface SimulationTableProps {
   onSet: (examId: string, grade: number, lode: boolean) => void
   onClear: (examId: string) => void
   onLock: (examId: string, locked: boolean) => void
+  /** Nome del gruppo di esami, se la funzione è attiva */
+  groupName?: string
 }
 
 /** Esami futuri con voto previsto, lode e lucchetto: ogni modifica aggiorna subito i calcoli. */
@@ -23,6 +26,7 @@ export function SimulationTable({
   onSet,
   onClear,
   onLock,
+  groupName,
 }: SimulationTableProps) {
   return (
     <div className={`${tableStyles.wrapper} ${styles.tableWrapper}`}>
@@ -49,6 +53,7 @@ export function SimulationTable({
               <tr key={exam.id} data-locked={locked || undefined}>
                 <th scope="row" className={`${tableStyles.name} ${styles.examName}`}>
                   {exam.name}
+                  {groupName && exam.inGroup && <GroupTag name={groupName} />}
                 </th>
                 <td className={`${tableStyles.numeric} ${styles.cfu} num`}>
                   {exam.cfu}

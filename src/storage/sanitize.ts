@@ -11,7 +11,9 @@ import {
   isValidLodeValue,
 } from '../domain/validation'
 import {
+  DEFAULT_GROUP_NAME,
   DEFAULT_LODE_VALUE,
+  MAX_GROUP_NAME_LENGTH,
   MAX_GRADE,
   MAX_NAME_LENGTH,
   MAX_SCENARIOS,
@@ -58,6 +60,7 @@ function sanitizePassedExam(raw: unknown): PassedExam | null {
     lode: raw.lode === true && raw.grade === MAX_GRADE,
   }
   if (isValidDate(raw.date)) exam.date = raw.date
+  if (raw.inGroup === true) exam.inGroup = true
   return exam
 }
 
@@ -65,12 +68,14 @@ function sanitizeFutureExam(raw: unknown): FutureExam | null {
   if (!isObject(raw)) return null
   const name = cleanName(raw.name)
   if (!isValidId(raw.id) || !name || !isValidCfu(raw.cfu)) return null
-  return {
+  const exam: FutureExam = {
     id: raw.id,
     name,
     cfu: raw.cfu,
     difficulty: isValidDifficulty(raw.difficulty) ? raw.difficulty : 'medium',
   }
+  if (raw.inGroup === true) exam.inGroup = true
+  return exam
 }
 
 function sanitizePrediction(raw: unknown): Prediction | null {
@@ -153,6 +158,14 @@ export function sanitizeAppData(raw: unknown): SanitizeResult {
     ? (raw.activeScenarioId as string)
     : (scenarios[0]?.id ?? null)
 
+  const groupRaw = isObject(raw.group) ? raw.group : {}
+  const groupName = typeof groupRaw.name === 'string' ? groupRaw.name.trim() : ''
+  const group = {
+    enabled: groupRaw.enabled === true,
+    name: groupName && groupName.length <= MAX_GROUP_NAME_LENGTH ? groupName : DEFAULT_GROUP_NAME,
+    goal: sanitizeGoal(groupRaw.goal),
+  }
+
   return {
     data: {
       passedExams: passed.items,
@@ -160,6 +173,7 @@ export function sanitizeAppData(raw: unknown): SanitizeResult {
       settings: { lodeValue },
       scenarios,
       activeScenarioId,
+      group,
     },
     dropped,
   }

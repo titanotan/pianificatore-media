@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { createEmptyData, type AppData } from '../domain/types'
-import { SCHEMA_VERSION, UnsupportedVersionError, migrate, migrateV1toV2 } from './migrations'
+import {
+  SCHEMA_VERSION,
+  UnsupportedVersionError,
+  migrate,
+  migrateV1toV2,
+  migrateV2toV3,
+} from './migrations'
 import { sanitizeAppData } from './sanitize'
 import {
   BACKUP_STORAGE_KEY,
@@ -213,7 +219,42 @@ describe('migrazione v1 → v2 (da un obiettivo a più obiettivi)', () => {
     expect(result.data.scenarios[0].predictions.f1.locked).toBe(true)
     // Al salvataggio successivo i dati sono nel formato nuovo
     saveData(storage, result.data)
-    expect(JSON.parse(storage.dump()[DATA_STORAGE_KEY]).version).toBe(2)
+    expect(JSON.parse(storage.dump()[DATA_STORAGE_KEY]).version).toBe(SCHEMA_VERSION)
+    // ...e hanno il gruppo di esami, spento
+    expect(result.data.group).toEqual({ enabled: false, name: 'Gruppo di esami', goal: null })
+  })
+})
+
+describe('migrazione v2 → v3 (gruppo di esami)', () => {
+  it('aggiunge il gruppo spento, senza toccare il resto', () => {
+    const v2 = { passedExams: [], futureExams: [], scenarios: [], activeScenarioId: null }
+    expect(migrateV2toV3(v2)).toEqual({
+      ...v2,
+      group: { enabled: false, name: 'Gruppo di esami', goal: null },
+    })
+  })
+})
+
+describe('gruppo di esami nei dati salvati', () => {
+  it('conserva appartenenza al gruppo, nome e obiettivo', () => {
+    const data = {
+      ...sampleData(),
+      passedExams: [{ id: 'p', name: 'P', cfu: 6, grade: 28, lode: false, inGroup: true }],
+      group: { enabled: true, name: 'Caratterizzanti', goal: { kind: 'average', value: 27 } },
+    }
+    const { data: clean, dropped } = sanitizeAppData(data)
+    expect(dropped).toBe(0)
+    expect(clean.passedExams[0].inGroup).toBe(true)
+    expect(clean.group).toEqual(data.group)
+  })
+
+  it('valori non validi: gruppo spento con nome predefinito', () => {
+    const { data } = sanitizeAppData({
+      futureExams: [{ id: 'f', name: 'F', cfu: 6, difficulty: 'easy', inGroup: 'sì' }],
+      group: { enabled: 'yes', name: '', goal: { kind: 'average', value: 99 } },
+    })
+    expect(data.futureExams[0].inGroup).toBeUndefined()
+    expect(data.group).toEqual({ enabled: false, name: 'Gruppo di esami', goal: null })
   })
 })
 

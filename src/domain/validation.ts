@@ -129,7 +129,9 @@ function validateOptionalDate(raw: string): FieldResult<string | undefined> {
   return { value: text }
 }
 
-function collect<K extends string>(fields: Record<K, { error?: string } | string | undefined>) {
+function collect<K extends string>(
+  fields: Partial<Record<K, { error?: string } | string | undefined>>,
+) {
   const errors: FieldErrors<K> = {}
   for (const key of Object.keys(fields) as K[]) {
     const field = fields[key]
@@ -147,6 +149,8 @@ export interface PassedExamForm {
   grade: string
   lode: boolean
   date: string
+  /** Solo se il gruppo di esami è attivo */
+  inGroup?: boolean
 }
 
 export type PassedExamField = keyof PassedExamForm
@@ -170,6 +174,7 @@ export function validatePassedExam(
     lode: form.lode,
   }
   if (date.value) exam.date = date.value
+  if (form.inGroup) exam.inGroup = true
   return { ok: true, value: exam }
 }
 
@@ -177,6 +182,8 @@ export interface FutureExamForm {
   name: string
   cfu: string
   difficulty: string
+  /** Solo se il gruppo di esami è attivo */
+  inGroup?: boolean
 }
 
 export type FutureExamField = keyof FutureExamForm
@@ -193,8 +200,11 @@ export function validateFutureExam(
   const errors = collect<FutureExamField>({ name, cfu, difficulty })
   if (Object.keys(errors).length > 0) return { ok: false, errors }
 
-  return {
-    ok: true,
-    value: { name: name.value!, cfu: cfu.value!, difficulty: form.difficulty as Difficulty },
+  const exam: Omit<FutureExam, 'id'> = {
+    name: name.value!,
+    cfu: cfu.value!,
+    difficulty: form.difficulty as Difficulty,
   }
+  if (form.inGroup) exam.inGroup = true
+  return { ok: true, value: exam }
 }

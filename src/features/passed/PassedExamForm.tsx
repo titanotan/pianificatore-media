@@ -19,6 +19,8 @@ interface PassedExamFormProps {
   notice?: string | null
   onSave: (exam: Omit<PassedExam, 'id'>, addAnother: boolean) => void
   onCancel: () => void
+  /** Nome del gruppo di esami, se la funzione è attiva */
+  groupName?: string
 }
 
 const toForm = (exam?: PassedExam): FormValues => ({
@@ -27,9 +29,16 @@ const toForm = (exam?: PassedExam): FormValues => ({
   grade: exam ? String(exam.grade) : '',
   lode: exam?.lode ?? false,
   date: exam?.date ?? '',
+  inGroup: exam?.inGroup ?? false,
 })
 
-export function PassedExamForm({ initial, notice, onSave, onCancel }: PassedExamFormProps) {
+export function PassedExamForm({
+  initial,
+  notice,
+  onSave,
+  onCancel,
+  groupName,
+}: PassedExamFormProps) {
   const [values, setValues] = useState<FormValues>(() => toForm(initial))
   // Gli errori compaiono dopo il primo tentativo di salvataggio, poi si aggiornano mentre scrivi
   const [showErrors, setShowErrors] = useState(false)
@@ -116,6 +125,16 @@ export function PassedExamForm({ initial, notice, onSave, onCancel }: PassedExam
           error={errors.date}
           max={todayIso()}
         />
+        {groupName && (
+          <div className={styles.full}>
+            <Checkbox
+              label={`Nel gruppo «${groupName}»`}
+              checked={values.inGroup ?? false}
+              onChange={(v) => update('inGroup', v)}
+              hint="Conta anche nella media del gruppo (resta nella media generale)."
+            />
+          </div>
+        )}
       </div>
 
       <ModalActions>

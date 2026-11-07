@@ -1,0 +1,16 @@
+.tag {
+  display: inline-block;
+  max-width: 14rem;
+  margin-left: var(--space-2);
+  padding: 1px var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  border-radius: var(--radius-full);
+  color: var(--accent);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: middle;
+}

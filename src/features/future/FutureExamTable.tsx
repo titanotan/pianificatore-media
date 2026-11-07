@@ -1,5 +1,6 @@
 import { Pencil, Trash2 } from 'lucide-react'
 import { Button } from '../../components/Button'
+import { GroupTag } from '../../components/GroupTag'
 import { DifficultyBadge } from '../../components/DifficultyBadge'
 import styles from '../../components/ExamTable.module.css'
 import type { FutureExam } from '../../domain/types'
@@ -8,9 +9,11 @@ interface FutureExamTableProps {
   exams: readonly FutureExam[]
   onEdit: (exam: FutureExam) => void
   onDelete: (exam: FutureExam) => void
+  /** Nome del gruppo di esami, se la funzione è attiva */
+  groupName?: string
 }
 
-export function FutureExamTable({ exams, onEdit, onDelete }: FutureExamTableProps) {
+export function FutureExamTable({ exams, onEdit, onDelete, groupName }: FutureExamTableProps) {
   return (
     <div className={styles.wrapper}>
       <table className={styles.table}>
@@ -32,6 +35,7 @@ export function FutureExamTable({ exams, onEdit, onDelete }: FutureExamTableProp
             <tr key={exam.id}>
               <th scope="row" className={styles.name}>
                 {exam.name}
+                {groupName && exam.inGroup && <GroupTag name={groupName} />}
               </th>
               <td className={`${styles.meta} ${styles.numeric} num`}>
                 {exam.cfu}

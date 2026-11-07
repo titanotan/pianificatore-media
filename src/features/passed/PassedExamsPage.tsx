@@ -15,7 +15,7 @@ import { PassedExamForm } from './PassedExamForm'
 import { PassedExamTable } from './PassedExamTable'
 
 export function PassedExamsPage() {
-  const { data, dispatch, plan } = useAppState()
+  const { data, dispatch, plan, groupPlan } = useAppState()
   const editor = useEditorState<PassedExam>()
 
   const exams = data.passedExams
@@ -80,9 +80,21 @@ export function PassedExamsPage() {
               value={exams.length}
               hint={lodeCount === 1 ? '1 con lode' : `${lodeCount} con lode`}
             />
+            {groupPlan && (
+              <Stat
+                label={`Media ${data.group.name}`}
+                value={formatAverage(groupPlan.passed.average)}
+                hint={`su ${formatCfu(groupPlan.passed.cfu)} del gruppo`}
+              />
+            )}
           </div>
 
-          <PassedExamTable exams={exams} onEdit={editor.openEdit} onDelete={editor.askDelete} />
+          <PassedExamTable
+            exams={exams}
+            onEdit={editor.openEdit}
+            onDelete={editor.askDelete}
+            groupName={data.group.enabled ? data.group.name : undefined}
+          />
           <p className={styles.footnote}>
             Totale: {formatCfu(plan.passed.cfu)} in {exams.length}{' '}
             {exams.length === 1 ? 'esame' : 'esami'}.
@@ -101,6 +113,7 @@ export function PassedExamsPage() {
           notice={editor.notice}
           onSave={save}
           onCancel={editor.close}
+          groupName={data.group.enabled ? data.group.name : undefined}
         />
       </Modal>
 

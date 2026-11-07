@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useReducer, useRef, useState, type ReactNode } from 'react'
+import { planForGroup } from '../domain/group'
 import { planAllScenarios, planForScenario, reachableRange } from '../domain/scenarios'
 import { getBrowserStorage, loadData, saveData } from '../storage/storage'
 import { AppStateContext, type AppStateValue } from './context'
@@ -30,6 +31,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       plan: planForScenario(data, activeScenario),
       scenarioPlans: planAllScenarios(data),
       range: reachableRange(data),
+      groupPlan: data.group.enabled ? planForGroup(data, activeScenario) : null,
     }
   }, [data])
 

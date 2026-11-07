@@ -14,6 +14,7 @@ import {
   type PassedExam,
   type Prediction,
   type Scenario,
+  type ExamGroup,
   type Settings,
 } from '../domain/types'
 
@@ -25,6 +26,7 @@ export type AppAction =
   | { type: 'future/update'; exam: FutureExam }
   | { type: 'future/remove'; id: string }
   | { type: 'settings/update'; settings: Partial<Settings> }
+  | { type: 'group/update'; group: Partial<ExamGroup> }
   | { type: 'scenario/add'; scenario: Scenario }
   | { type: 'scenario/updateGoal'; id: string; goal: Goal }
   | { type: 'scenario/remove'; id: string }
@@ -102,6 +104,9 @@ export function appReducer(state: AppData, action: AppAction): AppData {
 
     case 'settings/update':
       return { ...state, settings: { ...state.settings, ...action.settings } }
+
+    case 'group/update':
+      return { ...state, group: { ...state.group, ...action.group } }
 
     case 'scenario/add': {
       if (state.scenarios.length >= MAX_SCENARIOS) return state

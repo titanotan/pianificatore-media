@@ -17,6 +17,8 @@ export interface AppStateValue {
   scenarioPlans: ScenarioPlan[]
   /** Medie finali raggiungibili (indipendenti dagli obiettivi) */
   range: ReachableRange | null
+  /** Calcoli del gruppo di esami (con i voti dell'obiettivo selezionato); `null` se spento */
+  groupPlan: Plan | null
   /** Esito della lettura dei dati all'avvio */
   load: Pick<LoadResult, 'status' | 'message'>
   /** false se il browser non permette di salvare (es. navigazione privata) */

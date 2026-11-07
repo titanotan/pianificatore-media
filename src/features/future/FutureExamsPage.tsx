@@ -83,7 +83,12 @@ export function FutureExamsPage() {
             />
           </div>
 
-          <FutureExamTable exams={exams} onEdit={editor.openEdit} onDelete={editor.askDelete} />
+          <FutureExamTable
+            exams={exams}
+            onEdit={editor.openEdit}
+            onDelete={editor.askDelete}
+            groupName={data.group.enabled ? data.group.name : undefined}
+          />
           <p className={styles.footnote}>
             Totale: {formatCfu(plan.future.cfu)} in {exams.length}{' '}
             {exams.length === 1 ? 'esame' : 'esami'}. Imposta l’obiettivo e simula i voti nella{' '}
@@ -103,6 +108,7 @@ export function FutureExamsPage() {
           notice={editor.notice}
           onSave={save}
           onCancel={editor.close}
+          groupName={data.group.enabled ? data.group.name : undefined}
         />
       </Modal>
 

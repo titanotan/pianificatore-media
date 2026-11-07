@@ -101,6 +101,13 @@ describe('validatePassedExam', () => {
     })
   })
 
+  it('segna l’esame nel gruppo solo se richiesto', () => {
+    const inGroup = validatePassedExam({ ...valid, inGroup: true })
+    expect(inGroup.ok && inGroup.value.inGroup).toBe(true)
+    const notInGroup = validatePassedExam({ ...valid, inGroup: false })
+    expect(notInGroup.ok && 'inGroup' in notInGroup.value).toBe(false)
+  })
+
   it('conserva la data se presente', () => {
     const result = validatePassedExam({ ...valid, date: '2026-06-15' })
     expect(result.ok && result.value.date).toBe('2026-06-15')

@@ -256,6 +256,24 @@ describe('impostazioni e reset', () => {
     expect(state.settings.lodeValue).toBe(32)
   })
 
+  it('attiva il gruppo di esami, ne cambia nome e obiettivo', () => {
+    let state = appReducer(createEmptyData(), { type: 'group/update', group: { enabled: true } })
+    expect(state.group).toEqual({ enabled: true, name: 'Gruppo di esami', goal: null })
+    state = appReducer(state, {
+      type: 'group/update',
+      group: { name: 'Caratterizzanti', goal: { kind: 'average', value: 27 } },
+    })
+    expect(state.group).toEqual({
+      enabled: true,
+      name: 'Caratterizzanti',
+      goal: { kind: 'average', value: 27 },
+    })
+    // Spegnerlo non cancella nome e obiettivo
+    state = appReducer(state, { type: 'group/update', group: { enabled: false } })
+    expect(state.group.name).toBe('Caratterizzanti')
+    expect(state.group.goal).not.toBeNull()
+  })
+
   it('reset: torna ai dati vuoti', () => {
     const state = appReducer(withGoals(), { type: 'data/reset' })
     expect(state).toEqual(createEmptyData())
