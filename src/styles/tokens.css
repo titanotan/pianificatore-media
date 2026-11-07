@@ -1,0 +1,107 @@
+/*
+ * Token di design: tutti i colori, le spaziature e i raggi dell'app passano da qui.
+ * Il tema è deciso dall'attributo data-theme su <html> (impostato prima del render in index.html).
+ */
+
+:root {
+  /* Tipografia */
+  --font-sans: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  /* Spaziature (scala da 4px) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* Forme */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 999px;
+
+  /* Layout */
+  --sidebar-width: 240px;
+  --content-max-width: 1120px;
+  --bottom-nav-height: 64px;
+
+  --transition-fast: 120ms ease;
+  --transition: 200ms ease;
+}
+
+/* ---------- Tema chiaro ---------- */
+:root,
+:root[data-theme='light'] {
+  color-scheme: light;
+
+  --bg: #f8f9fb;
+  --surface: #ffffff;
+  --surface-2: #f1f3f7;
+  --border: #e4e7ec;
+  --border-strong: #cfd4dd;
+
+  --text: #111318;
+  --text-muted: #5b6170;
+  --text-subtle: #8a909c;
+
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-soft: #eef0ff;
+  --on-accent: #ffffff;
+
+  /* Colori di stato dell'obiettivo */
+  --ok: #15803d;
+  --ok-soft: #e8f6ee;
+  --warn: #b45309;
+  --warn-soft: #fef3e2;
+  --danger: #b91c1c;
+  --danger-soft: #fdecec;
+  --info: #1d4ed8;
+  --info-soft: #e8effd;
+
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 0.05);
+  --shadow-md: 0 4px 12px rgb(16 24 40 / 0.08);
+  --focus-ring: 0 0 0 3px rgb(79 70 229 / 0.35);
+}
+
+/* ---------- Tema scuro ---------- */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg: #0b0d12;
+  --surface: #151821;
+  --surface-2: #1c202b;
+  --border: #2a2f3c;
+  --border-strong: #3a4050;
+
+  --text: #e7e9ee;
+  --text-muted: #9aa1b0;
+  --text-subtle: #6b7281;
+
+  --accent: #818cf8;
+  --accent-hover: #a5b4fc;
+  --accent-soft: rgb(129 140 248 / 0.14);
+  --on-accent: #0b0d12;
+
+  --ok: #4ade80;
+  --ok-soft: rgb(74 222 128 / 0.12);
+  --warn: #fbbf24;
+  --warn-soft: rgb(251 191 36 / 0.12);
+  --danger: #f87171;
+  --danger-soft: rgb(248 113 113 / 0.12);
+  --info: #60a5fa;
+  --info-soft: rgb(96 165 250 / 0.12);
+
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 4px 16px rgb(0 0 0 / 0.45);
+  --focus-ring: 0 0 0 3px rgb(129 140 248 / 0.45);
+}

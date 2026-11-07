@@ -1,0 +1,38 @@
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.value {
+  font-size: var(--text-3xl);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+.hint {
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
+
+.emphasis {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent-soft), var(--surface) 70%);
+}
+
+.emphasis .value {
+  color: var(--accent);
+}
+
+@media (max-width: 767px) {
+  .value {
+    font-size: var(--text-2xl);
+  }
+}

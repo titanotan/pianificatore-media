@@ -1,0 +1,115 @@
+.shell {
+  min-height: 100vh;
+}
+
+.skipLink {
+  position: absolute;
+  left: var(--space-4);
+  top: -100px;
+  z-index: 100;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--on-accent);
+  text-decoration: none;
+}
+
+.skipLink:focus {
+  top: var(--space-4);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text);
+  font-weight: 650;
+  font-size: var(--text-md);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Computer ---------- */
+.topbar {
+  display: none;
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-4);
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+
+.sidebarBrand {
+  padding: 0 var(--space-3);
+}
+
+.sidebarFooter {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.main {
+  margin-left: var(--sidebar-width);
+  outline: none;
+}
+
+.content {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-6) var(--space-7);
+}
+
+/* ---------- Smartphone ---------- */
+@media (max-width: 767px) {
+  .topbar {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-2) var(--space-4);
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .sidebar {
+    inset: auto 0 0 0;
+    width: auto;
+    height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+    padding: 0 var(--space-2) env(safe-area-inset-bottom);
+    flex-direction: row;
+    align-items: center;
+    border-right: none;
+    border-top: 1px solid var(--border);
+    z-index: 10;
+  }
+
+  .sidebarBrand,
+  .sidebarFooter {
+    display: none;
+  }
+
+  .main {
+    margin-left: 0;
+  }
+
+  .content {
+    padding: var(--space-5) var(--space-4)
+      calc(var(--bottom-nav-height) + env(safe-area-inset-bottom) + var(--space-6));
+  }
+}
