@@ -5,11 +5,8 @@
 App web per tenere sotto controllo la media universitaria. Non è un semplice libretto: il cuore
 dell'app è capire **quali voti servono nei prossimi esami** per raggiungere la media obiettivo.
 
-Il progetto è nato da un prompt di requisiti, conservato in
-[`docs/requisiti-iniziali.md`](docs/requisiti-iniziali.md); l'app nel frattempo si è evoluta e le
-funzionalità attuali sono descritte qui sotto. È stato sviluppato con l'assistenza di
-[Claude Code](https://claude.com/claude-code) (Anthropic), una milestone alla volta, con test per
-la logica di calcolo.
+## Come è stato sviluppato
+Il progetto è un esperimento con Claude Code. Io ho definito il problema, i requisiti, le priorit e le scelte di prodotto, e ho provato e revisionato ogni milestone; il codice è stato scritto in gran parte da Claude Code. I requisiti iniziali sono in docs/requisiti-iniziali.md
 
 ## Funzionalità
 
