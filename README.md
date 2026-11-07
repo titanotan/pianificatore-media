@@ -5,6 +5,22 @@ dell'app è capire **quali voti servono nei prossimi esami** per raggiungere la 
 
 I requisiti completi sono in [`prompt.md`](prompt.md).
 
+## Funzionalità
+
+- **Libretto**: esami sostenuti con CFU, voto, lode e data; media ponderata in tempo reale.
+- **Esami da sostenere** con CFU e difficoltà prevista.
+- **Più obiettivi di media** (es. 25, 26, 27) confrontati in una tabella: per ognuno la media
+  necessaria negli esami rimanenti e lo stato (già raggiunto, raggiungibile, al limite, solo con
+  lodi, non raggiungibile).
+- **Simulazione per ogni obiettivo**: voto previsto, lode e lucchetto per ogni esame futuro;
+  barra 18–30 con media attuale, prevista e obiettivo; voto suggerito nei campi vuoti.
+- **Genera voti**: proposta realistica dei voti negli esami non bloccati, facoltativamente in base
+  alla difficoltà.
+- **Gruppo di esami** (funzione aggiuntiva): pagina propria con obiettivi e simulazioni calcolati
+  solo su un gruppo ristretto di esami (es. quelli che l'ateneo usa per i punti di laurea).
+- Valore della lode configurabile (30–33), tema chiaro/scuro, uso da computer e smartphone,
+  schermata iniziale con esempio da caricare.
+
 ## Tecnologie
 
 - [React](https://react.dev) + [TypeScript](https://www.typescriptlang.org), con [Vite](https://vite.dev)
@@ -23,6 +39,9 @@ npm run preview    # prova in locale il sito appena costruito
 npm run lint       # controlla il codice
 npm run format     # formatta il codice con Prettier
 ```
+
+L'accessibilità è stata verificata con [axe-core](https://github.com/dequelabs/axe-core)
+(WCAG 2.1 AA) su tutte le pagine, in tema chiaro e scuro, su computer e smartphone.
 
 ## Struttura
 
@@ -72,4 +91,4 @@ build e pubblica il sito a ogni push su `main`. La prima volta, nel repository G
 - [x] M5 — Gruppo di esami (funzione aggiuntiva)
 - [x] M6 — Pagina del gruppo con più obiettivi
 - [x] M7 — Voti casuali in base alla difficoltà
-- [ ] M8 — Primo avvio, smartphone e pubblicazione
+- [x] M8 — Primo avvio, rifiniture e accessibilità (pubblicazione: vedi sotto)

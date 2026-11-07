@@ -87,6 +87,11 @@ export const MAX_SCENARIOS = 10
 export interface Settings {
   /** Quanto vale la lode nel calcolo della media (30–33) */
   lodeValue: number
+  /**
+   * "Genera voti" tiene conto della difficoltà degli esami (facili più alti, difficili più bassi).
+   * Assente = sì; `false` = tutti gli esami trattati allo stesso modo.
+   */
+  difficultyInGeneration?: boolean
 }
 
 /**

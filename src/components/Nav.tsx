@@ -40,9 +40,9 @@ export function Nav({ current, routes }: NavProps) {
               >
                 <Icon className={styles.icon} size={20} strokeWidth={1.9} aria-hidden="true" />
                 <span className={styles.label}>{label}</span>
-                <span className={styles.shortLabel} aria-hidden="true">
-                  {shortLabel}
-                </span>
+                {/* Solo una delle due etichette è visibile (e quindi letta) in ogni formato:
+                    nome completo su computer, nome corto su smartphone */}
+                <span className={styles.shortLabel}>{shortLabel}</span>
               </a>
             </li>
           )

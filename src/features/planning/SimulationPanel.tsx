@@ -39,6 +39,7 @@ export function SimulationPanel({ view, scenario }: SimulationPanelProps) {
   const [generated, setGenerated] = useState<{
     previous: Record<string, Prediction>
     reachable: boolean
+    useDifficulty: boolean
   } | null>(null)
   const message = describeGoal(plan, data.settings.lodeValue)
   const evaluation = plan.evaluation
@@ -46,11 +47,14 @@ export function SimulationPanel({ view, scenario }: SimulationPanelProps) {
   const hasPredictions = Object.keys(scenario.predictions).length > 0
   const scenarioId = scenario.id
   const required = evaluation?.required ?? null
+  const useDifficulty = data.settings.difficultyInGeneration !== false
 
   const generate = () => {
     if (required === null) return
-    const result = generatePredictions(futureExams, scenario.predictions, required)
-    setGenerated({ previous: scenario.predictions, reachable: result.reachable })
+    const result = generatePredictions(futureExams, scenario.predictions, required, {
+      useDifficulty,
+    })
+    setGenerated({ previous: scenario.predictions, reachable: result.reachable, useDifficulty })
     dispatch({ type: 'prediction/replaceAll', scope, scenarioId, predictions: result.predictions })
   }
 
@@ -122,6 +126,21 @@ export function SimulationPanel({ view, scenario }: SimulationPanelProps) {
               Svuota simulazione
             </Button>
           )}
+          {futureExams.length > 0 && (
+            <label className={styles.difficultyToggle}>
+              <input
+                type="checkbox"
+                checked={useDifficulty}
+                onChange={(event) =>
+                  dispatch({
+                    type: 'settings/update',
+                    settings: { difficultyInGeneration: event.target.checked },
+                  })
+                }
+              />
+              Tieni conto della difficoltà
+            </label>
+          )}
         </div>
       </div>
 
@@ -133,9 +152,11 @@ export function SimulationPanel({ view, scenario }: SimulationPanelProps) {
           role="status"
         >
           <p>
-            {generated.reachable
-              ? 'Voti generati negli esami non bloccati: più alti nei facili, più bassi nei difficili. Premi di nuovo per un’altra combinazione, o modificali a mano.'
-              : 'L’obiettivo non è raggiungibile: ho messo 30 in tutti gli esami non bloccati.'}
+            {!generated.reachable
+              ? 'L’obiettivo non è raggiungibile: ho messo 30 in tutti gli esami non bloccati.'
+              : generated.useDifficulty
+                ? 'Voti generati negli esami non bloccati: più alti nei facili, più bassi nei difficili. Premi di nuovo per un’altra combinazione, o modificali a mano.'
+                : 'Voti generati negli esami non bloccati, senza considerare la difficoltà. Premi di nuovo per un’altra combinazione, o modificali a mano.'}
           </p>
           <Button size="sm" variant="ghost" onClick={undoGenerate}>
             Annulla

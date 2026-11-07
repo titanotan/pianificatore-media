@@ -1,10 +1,14 @@
 import { PageHeader } from '../../components/PageHeader'
 import { useAppState } from '../../state/context'
+import { Welcome } from '../onboarding/Welcome'
 import { PlanningView } from './PlanningView'
 
-/** Pianificazione della media generale (tutti gli esami). */
+/** Pianificazione della media generale (tutti gli esami); senza esami mostra la guida iniziale. */
 export function PlanningPage() {
-  const { main } = useAppState()
+  const { data, main } = useAppState()
+
+  if (data.passedExams.length === 0 && data.futureExams.length === 0) return <Welcome />
+
   return (
     <>
       <PageHeader

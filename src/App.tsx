@@ -1,4 +1,4 @@
-import { useMemo, type ReactNode } from 'react'
+import { useEffect, useMemo, type ReactNode } from 'react'
 import { AppShell } from './app/AppShell'
 import { StorageNotices } from './app/StorageNotices'
 import { ROUTES, type RouteId } from './app/routes'
@@ -33,6 +33,11 @@ export default function App() {
       ),
     [groupEnabled, groupName],
   )
+
+  useEffect(() => {
+    const label = routes.find((r) => r.id === route)?.label
+    document.title = label ? `${label} · Pianificatore Media` : 'Pianificatore Media'
+  }, [route, routes])
 
   return (
     <AppShell route={route} routes={routes} theme={theme} onToggleTheme={toggle}>

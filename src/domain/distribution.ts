@@ -31,6 +31,8 @@ export const DEFAULT_SPREAD = 1.5
 export interface DistributionOptions {
   random?: Random
   spread?: number
+  /** Tieni conto della difficoltà (default sì); se no, tutti gli esami sono trattati allo stesso modo */
+  useDifficulty?: boolean
 }
 
 export interface DistributionResult {
@@ -53,7 +55,7 @@ const clampGrade = (value: number) => Math.min(MAX_GRADE, Math.max(MIN_GRADE, va
 export function distributeGrades(
   exams: readonly DistributionExam[],
   required: number,
-  { random = Math.random, spread = DEFAULT_SPREAD }: DistributionOptions = {},
+  { random = Math.random, spread = DEFAULT_SPREAD, useDifficulty = true }: DistributionOptions = {},
 ): DistributionResult {
   if (exams.length === 0) return { grades: {}, reachable: true, average: null }
 
@@ -72,11 +74,9 @@ export function distributeGrades(
   const target = Math.max(required, MIN_GRADE)
 
   // Scostamenti per difficoltà, ricentrati sulla media pesata (così la media resta ≈ target)
-  const meanOffset =
-    exams.reduce((sum, e) => sum + DIFFICULTY_OFFSET[e.difficulty] * e.cfu, 0) / totalCfu
-  const ideal = exams.map(
-    (e) => target + DIFFICULTY_OFFSET[e.difficulty] - meanOffset + (random() * 2 - 1) * spread,
-  )
+  const offsetOf = (e: DistributionExam) => (useDifficulty ? DIFFICULTY_OFFSET[e.difficulty] : 0)
+  const meanOffset = exams.reduce((sum, e) => sum + offsetOf(e) * e.cfu, 0) / totalCfu
+  const ideal = exams.map((e) => target + offsetOf(e) - meanOffset + (random() * 2 - 1) * spread)
   const grades = ideal.map((value) => clampGrade(Math.round(value)))
 
   // Indice dell'esame che conviene modificare: quello più lontano dal suo valore ideale

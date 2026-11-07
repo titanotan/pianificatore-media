@@ -175,7 +175,10 @@ export function sanitizeAppData(raw: unknown): SanitizeResult {
     data: {
       passedExams: passed.items,
       futureExams: future.items,
-      settings: { lodeValue },
+      settings: {
+        lodeValue,
+        ...(settingsRaw.difficultyInGeneration === false ? { difficultyInGeneration: false } : {}),
+      },
       scenarios,
       activeScenarioId,
       group,

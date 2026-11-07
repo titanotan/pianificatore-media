@@ -64,6 +64,31 @@ describe('distributeGrades', () => {
     expect(mean('medium')).toBeGreaterThan(mean('hard') + 0.5)
   })
 
+  it('senza difficoltà: facili e difficili hanno in media gli stessi voti', () => {
+    const sums: Record<Difficulty, number> = { easy: 0, medium: 0, hard: 0 }
+    const counts: Record<Difficulty, number> = { easy: 0, medium: 0, hard: 0 }
+    for (const seed of SEEDS) {
+      const { grades, average } = distributeGrades(exams, 26, {
+        random: seededRandom(seed),
+        useDifficulty: false,
+      })
+      expect(average!).toBeGreaterThanOrEqual(26 - 1e-9)
+      for (const e of exams) {
+        sums[e.difficulty] += grades[e.id]
+        counts[e.difficulty] += 1
+      }
+    }
+    const mean = (d: Difficulty) => sums[d] / counts[d]
+    expect(Math.abs(mean('easy') - mean('hard'))).toBeLessThan(0.3)
+  })
+
+  it('stesse difficoltà per tutti = senza difficoltà (gli scostamenti si annullano)', () => {
+    const allHard = exams.map((e) => ({ ...e, difficulty: 'hard' as const }))
+    const a = distributeGrades(allHard, 27, { random: seededRandom(5) })
+    const b = distributeGrades(exams, 27, { random: seededRandom(5), useDifficulty: false })
+    expect(a.grades).toEqual(b.grades)
+  })
+
   it('i voti sono variati e cambiano da una generazione all’altra', () => {
     const results = SEEDS.slice(0, 50).map(
       (seed) => distributeGrades(exams, 26, { random: seededRandom(seed) }).grades,

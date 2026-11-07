@@ -16,7 +16,42 @@
 .panelActions {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
   gap: var(--space-2);
+  max-width: 420px;
+  /* Anche quando va a capo sotto il titolo resta allineato a destra */
+  margin-left: auto;
+}
+
+.difficultyToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-basis: 100%;
+  justify-content: flex-end;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.difficultyToggle input {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: var(--accent);
+  cursor: inherit;
+}
+
+@media (max-width: 767px) {
+  .panelActions {
+    margin-left: 0;
+  }
+
+  .panelActions,
+  .difficultyToggle {
+    justify-content: flex-start;
+  }
 }
 
 .generated {
